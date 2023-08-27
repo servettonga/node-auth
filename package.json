@@ -1,0 +1,36 @@
+{
+    "name": "node-auth",
+    "version": "1.0.0",
+    "description": "Simple User Management API",
+    "main": "src/app.js",
+    "repository": "git@github.com:servettonga/node-auth.git",
+    "author": "Servet <serveth@gmail.com>",
+    "license": "MIT",
+    "scripts": {
+        "build": "tsc",
+        "start": "",
+        "dev": "yarn nodemon"
+    },
+    "type": "module",
+    "dependencies": {
+        "connect": "^3.7.0",
+        "express": "^4.18.2",
+        "express-openapi-validator": "^5.0.6",
+        "openapi-backend": "^5.9.2",
+        "swagger-routes-express": "^3.3.2",
+        "validator": "^13.11.0",
+        "yamljs": "^0.3.0"
+    },
+    "devDependencies": {
+        "nodemon": "^3.0.1"
+    },
+    "nodemonConfig": {
+        "ignore": [
+            "**/test/**",
+            "**/docs/**"
+        ]
+    },
+    "engines": {
+        "node": ">=16.0.0"
+    }
+}

@@ -1,0 +1,259 @@
+openapi: "3.1.0"
+info:
+  title: Simple User Management API
+  description: Backend API example
+  termsOfService: http://swagger.io/terms/
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+
+servers:
+- url: /api/v1
+  description: SwaggerHub API Auto Mocking
+
+tags:
+- name: admins
+  description: Secured Admin-only calls
+- name: users
+  description: Operations available to regular users
+
+paths:
+  /register:
+    post:
+      tags:
+      - users
+      summary: Registers a new user
+      description: Adds a user to the system
+      operationId: registerUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        "201":
+          description: User is created
+        "400":
+          description: "Invalid input, user invalid"
+        "409":
+          description: User exists
+      x-swagger-router-controller: Users
+
+  /update:
+    post:
+      tags:
+      - users
+      - admins
+      summary: Updates user's information
+      description: Updates user information
+      operationId: updateUser
+      parameters:
+      - name: username
+        in: query
+        description: The username to update
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        "200":
+          description: User's updated
+        "401":
+          description: Unauthorized request
+        "404":
+          description: User's not found
+        "500":
+          description: Internal Server Error
+      x-swagger-router-controller: Users
+
+  /login:
+    post:
+      tags:
+      - users
+      - admins
+      summary: Logs into the system
+      description: Logs in a user to the system
+      operationId: loginUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+      responses:
+        "200":
+          description: User is logged in
+        "400":
+          description: "invalid input, user invalid"
+      x-swagger-router-controller: Users
+
+  /users:
+    get:
+      tags:
+      - admins
+      summary: Returns users
+      description: Get the details of a user or users
+      operationId: getUsers
+      parameters:
+      - name: username
+        in: query
+        description: The username of the user to return
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: email
+        in: query
+        description: The email of the user to return
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: admin
+        in: query
+        description: User groups
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      responses:
+        "200":
+          description: Search result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserList'
+        "401":
+          description: Unauthorized request
+        "500":
+          description: Internal Server Error
+      x-swagger-router-controller: Admins
+
+  /user:
+    get:
+      tags:
+      - admins
+      - users
+      summary: Returns logged in user
+      description: Get the details of the user
+      operationId: getUser
+      responses:
+        "200":
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+        "401":
+          description: Unauthorized request
+        "500":
+          description: Internal Server Error
+      x-swagger-router-controller: Admins
+
+  /logout:
+    get:
+      tags:
+      - admins
+      - users
+      summary: Logs out of the system
+      description: Logs out of the system and clear cookies
+      operationId: logoutUser
+      responses:
+        "200":
+          description: Logged out of the system
+      x-swagger-router-controller: Admins
+
+  /delete:
+    delete:
+      tags:
+      - admins
+      summary: Deletes a user from the system
+      description: Deletes a user from the system
+      operationId: deleteUser
+      parameters:
+      - name: username
+        in: query
+        description: The username of the user to return
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: User's deleted
+      x-swagger-router-controller: Admins
+
+components:
+  schemas:
+    User:
+      required:
+      - email
+      - password
+      - username
+      type: object
+      properties:
+        username:
+          type: string
+          example: username
+        email:
+          type: string
+          example: user@email.com
+        password:
+          type: string
+          example: password
+        isAdmin:
+          type: boolean
+      example:
+        password: password
+        admin: true
+        email: user@email.com
+        username: username
+    UserLogin:
+      required:
+      - email
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+          example: user@email.com
+        password:
+          type: string
+          example: password
+    UserList:
+      type: object
+      items:
+        $ref: '#/components/schemas/User'
+    inline_response_200:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/inline_response_200_user'
+      example:
+        user:
+          admin: true
+          email: email
+          username: username
+    inline_response_200_user:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        admin:
+          type: boolean
+      example:
+        admin: true
+        email: email
+        username: username

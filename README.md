@@ -121,7 +121,7 @@ Request body:
   "username": "username",
   "email": "user@email.com",
   "password": "password",
-  "isAdmin": true
+  "admin": true
 }
 ```
 
@@ -153,7 +153,7 @@ Response body:
   {
     "username": "username",
     "email": "user@email.com",
-    "isAdmin": true
+    "admin": true
   }
 ]
 ```
@@ -163,3 +163,18 @@ Responses:
 |------|----------------------|
 | 200 | Search results |
 | 401 | Unauthorized request |
+
+<br>
+
+#### DELETE `/api/v1/delete` - Deletes a user from the system
+
+Query parameters:
+
+```
+username: user to be deleted
+```
+
+Responses:
+| Code | Description |
+|------|-------------------|
+| 200 | User’s deleted |
