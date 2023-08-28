@@ -7,18 +7,26 @@ import morganBody from 'morgan-body';
 import YAML from 'yamljs';
 
 import * as api from '../api/controllers/index.js';
+import config from '../config/index.js';
+import logger from './logger.js';
+
 
 export const createServer = async () => {
   const apiSpecFile = './config/openapi.yml';
   const apiDefinition = YAML.load(apiSpecFile);
   const apiSummary = summarise(apiDefinition);
-  console.info(apiSummary);
+  logger.info(apiSummary);
 
   const server = express();
   server.use(bodyParser.json());
-  server.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
 
-  morganBody(server);
+  // Logging
+  if (config.morganLogger) {
+    server.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
+  }
+  if (config.morganBodyLogger) {
+    morganBody(server);
+  }
 
   // API validator
   const validatorOptions = {
@@ -42,7 +50,7 @@ export const createServer = async () => {
   const connect = connector(api, apiDefinition, {
     onCreateRoute: (method, descriptor) => {
       descriptor.shift()
-      console.log(`${method}: ${descriptor.map(d => d.name).join(', ')}`)
+      logger.info(`${method}: ${descriptor.map(d => d.name).join(', ')}`)
     },
     security: {
       bearerAuth: api.auth
