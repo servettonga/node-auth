@@ -1,6 +1,9 @@
+import bodyParser from 'body-parser';
 import express from 'express';
 import * as OpenApiValidator from 'express-openapi-validator';
 import { connector, summarise } from 'swagger-routes-express';
+import morgan from 'morgan';
+import morganBody from 'morgan-body';
 import YAML from 'yamljs';
 
 import * as api from '../api/controllers/index.js';
@@ -12,6 +15,10 @@ export const createServer = async () => {
   console.info(apiSummary);
 
   const server = express();
+  server.use(bodyParser.json());
+  server.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
+
+  morganBody(server);
 
   // API validator
   const validatorOptions = {
@@ -34,7 +41,11 @@ export const createServer = async () => {
 
   const connect = connector(api, apiDefinition, {
     onCreateRoute: (method, descriptor) => {
-      console.log(`${method}: ${descriptor[0]}: ${descriptor[1].name}`)
+      descriptor.shift()
+      console.log(`${method}: ${descriptor.map(d => d.name).join(', ')}`)
+    },
+    security: {
+      bearerAuth: api.auth
     }
   })
 
