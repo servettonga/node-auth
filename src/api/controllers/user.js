@@ -1,4 +1,4 @@
-import { writeJsonResponse } from '../../utils/express.js';
+import { writeJsonResponse } from '#utils/express.js';
 
 export async function getUser(req, res, next) {
     const userId = res.locals.auth.userId

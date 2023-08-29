@@ -1,4 +1,4 @@
-import { writeJsonResponse } from '../../utils/express.js';
+import { writeJsonResponse } from '#utils/express.js';
 
 export async function getUsers(req, res) {
     const name = req.query.username || 'World'

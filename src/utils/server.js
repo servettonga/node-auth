@@ -6,12 +6,12 @@ import morgan from 'morgan';
 import morganBody from 'morgan-body';
 import YAML from 'yamljs';
 
-import * as api from '../api/controllers/index.js';
-import config from '../config/index.js';
-import logger from './logger.js';
+import * as api from '#controllers/index.js';
+import config from '#config';
+import logger from '#utils/logger.js';
 
 
-export const createServer = async () => {
+export async function createServer() {
   const apiSpecFile = './config/openapi.yml';
   const apiDefinition = YAML.load(apiSpecFile);
   const apiSummary = summarise(apiDefinition);

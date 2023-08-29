@@ -1,4 +1,4 @@
-export default async function authentication(bearerToken) {
+export async function authentication(bearerToken) {
     const token = bearerToken.replace('Bearer ', '')
 
     if (token === 'fakeToken') {

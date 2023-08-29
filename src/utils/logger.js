@@ -1,5 +1,6 @@
+/* istanbul ignore file */
 import winston from 'winston';
-import config from '../config/index.js';
+import config from '#config';
 
 // npm debug levels (winston default):
 // {

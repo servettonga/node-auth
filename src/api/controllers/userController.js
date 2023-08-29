@@ -1,5 +1,5 @@
-import authentication from '../services/user.js'
-import { writeJsonResponse } from '../../utils/express.js';
+import { authentication } from '#services/user.js'
+import { writeJsonResponse } from '#utils/express.js';
 
 export async function auth(req, res, next) {
     try {
