@@ -1,5 +1,7 @@
 import { authentication } from '#services/user.js'
 import { writeJsonResponse } from '#utils/express.js';
+import logger from '#utils/logger.js';
+
 
 export async function auth(req, res, next) {
     try {
@@ -16,6 +18,7 @@ export async function auth(req, res, next) {
 
     }
     catch (error) {
+        logger.error(`auth: ${error}`)
         writeJsonResponse(res, 500, {
             error: {
                 type: 'InternalServerError',
