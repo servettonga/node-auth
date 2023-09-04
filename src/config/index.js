@@ -27,7 +27,12 @@ const loggerLevel = {
 const config = {
     morganLogger: Boolean(parseEnv.MORGAN_LOGGER),
     morganBodyLogger: Boolean(parseEnv.MORGAN_BODY_LOGGER),
-    loggerLevel: loggerLevel[parseEnv.LOGGER_LEVEL]
+    loggerLevel: loggerLevel[parseEnv.LOGGER_LEVEL],
+    mongo: {
+        url: parseEnv.MONGO_URL,
+        useCreateIndex: Boolean(parseEnv.MONGO_USE_CREATE_INDEX),
+        autoIndex: Boolean(parseEnv.MONGO_AUTO_INDEX)
+    }
 }
 
 export default config;

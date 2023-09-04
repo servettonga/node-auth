@@ -10,27 +10,35 @@
         "build": "tsc",
         "start": "",
         "dev": "ENV_FILE=./config/.env.dev yarn nodemon",
-        "test:unit": "ENV_FILE=./config/.env.test node --experimental-vm-modules node_modules/jest/bin/jest.js"
+        "test:unit": "ENV_FILE=./config/.env.test vitest --coverage"
     },
     "type": "module",
     "dependencies": {
+        "bcrypt": "^5.1.1",
         "connect": "^3.7.0",
         "dotenv-extended": "^2.9.0",
         "dotenv-parse-variables": "^2.0.0",
         "express": "^4.18.2",
         "express-openapi-validator": "^5.0.6",
+        "mongodb-memory-server": "^8.15.1",
+        "mongoose": "^7.5.0",
         "morgan": "^1.10.0",
         "morgan-body": "^2.6.9",
         "openapi-backend": "^5.9.2",
+        "qs": "^6.11.2",
         "swagger-routes-express": "^3.3.2",
         "validator": "^13.11.0",
         "winston": "^3.10.0",
         "yamljs": "^0.3.0"
     },
     "devDependencies": {
-        "jest": "^29.6.4",
+        "@faker-js/faker": "^8.0.2",
+        "@vitest/coverage-istanbul": "^0.34.3",
+        "@vitest/coverage-v8": "^0.34.3",
+        "c8": "^8.0.1",
         "nodemon": "^3.0.1",
-        "supertest": "^6.3.3"
+        "supertest": "^6.3.3",
+        "vitest": "^0.34.3"
     },
     "nodemonConfig": {
         "ignore": [
@@ -53,6 +61,9 @@
         ],
         "#services/*": [
             "./src/api/services/*"
+        ],
+        "#models/*": [
+            "./src/api/models/*"
         ]
     }
 }
