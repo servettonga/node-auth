@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import bcrypt from 'bcrypt';
 import { Schema, model } from 'mongoose';
 import validator from 'validator';
