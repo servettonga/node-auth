@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 export * from './delete.js';
 export * from './login.js';
 export * from './logout.js';

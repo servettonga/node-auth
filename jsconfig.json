@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "#utils/*": ["./src/utils/*"],
+      "#config": ["./src/config/index.js"],
+      "#controllers/*": ["./src/api/controllers/*"],
+      "#services/*": ["./src/api/services/*"],
+      "#models/*": ["./src/api/models/*"],
+      "#tests/*": ["./src/tests/*"]
+    }
+  }
+}

@@ -18,7 +18,7 @@ export async function auth(req, res, next) {
 
     }
     catch (error) {
-        logger.error(`auth: ${error}`)
+        /* istanbul ignore next */
         writeJsonResponse(res, 500, {
             error: {
                 type: 'InternalServerError',

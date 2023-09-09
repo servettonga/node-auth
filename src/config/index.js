@@ -1,6 +1,7 @@
 import dotenvExtended from 'dotenv-extended';
 import dotenvParseVariables from 'dotenv-parse-variables';
 
+
 const env = dotenvExtended.load({
     path: process.env.ENV_FILE,
     defaults: './config/.env.defaults',
@@ -32,7 +33,10 @@ const config = {
         url: parseEnv.MONGO_URL,
         useCreateIndex: Boolean(parseEnv.MONGO_USE_CREATE_INDEX),
         autoIndex: Boolean(parseEnv.MONGO_AUTO_INDEX)
-    }
+    },
+    privateKeyFile: parseEnv.PRIVATE_KEY_FILE,
+    privateKeyPassphrase: parseEnv.PRIVATE_KEY_PASSPHRASE,
+    publicKeyFile: parseEnv.PUBLIC_KEY_FILE
 }
 
 export default config;

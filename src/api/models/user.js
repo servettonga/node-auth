@@ -55,15 +55,11 @@ const userSchema = new Schema({
         }
     })
 
-    .static('login', async function (username, password) {
-        const user = await this.findOne({ username });
-        if (user && password) {
-            const auth = await bcrypt.compare(password, user.password);
-            if (auth) {
-                return user;
-            }
+    .method('comparePassword', async function (password) {
+        if (password) {
+            return await bcrypt.compare(password, this.password);
         }
-        throw new Error('Incorrect username or password');
+        throw new Error('Invalid password');
     })
 
 export default model('User', userSchema);

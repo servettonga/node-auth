@@ -5,6 +5,7 @@ export default defineConfig({
     coverage: {
       provider: 'istanbul',
       reporter: ["text"]
-    }
+    },
+    testTimeout: 5000
   }
 })

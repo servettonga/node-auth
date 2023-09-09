@@ -1,13 +1,13 @@
 import User from '#models/user.js'
 import { writeJsonResponse } from '#utils/express.js';
 import logger from "#utils/logger.js";
+import { createUser } from '#services/user.js'
 
 export async function registerUser(req, res, next) {
     try {
-        const user = new User(req.body);
-        await user.save()
+        const user = await createUser(req.body)
         writeJsonResponse(res, 200, {
-            response: `User's created: ${user.username}`
+            response: `User's created: ${req.body.username}`
         })
     } catch (error) {
         if ('username' in error.keyPattern) {

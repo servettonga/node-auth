@@ -43,15 +43,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/inline_response_400"
+                $ref: "#/components/schemas/FailResponse"
         "409":
-          description: User exists
+          description: Existing user
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/inline_response_400"
+                $ref: "#/components/schemas/FailResponse"
         "500":
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
       x-swagger-router-controller: Users
 
   /update:
@@ -87,10 +91,22 @@ paths:
                 $ref: "#/components/schemas/inline_response_200"
         "401":
           description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
         "404":
           description: User's not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
         "500":
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
       x-swagger-router-controller: Users
 
   /login:
@@ -108,9 +124,45 @@ paths:
               $ref: "#/components/schemas/UserLogin"
       responses:
         "200":
-          description: User is logged in
+          description: Success
+          headers:
+            X-Expires-After:
+              description: date in UTC when token expires
+              required: true
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                  - userId
+                properties:
+                  userId:
+                    type: string
+                  token:
+                    type: string
+                    format: '^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$'
         "400":
-          description: "invalid input, user invalid"
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
+        "404":
+          description: Invalid user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
       x-swagger-router-controller: Users
 
   /users:
@@ -228,6 +280,7 @@ components:
     bearerAuth:
       type: http
       scheme: bearer
+      bearerFormat: JWT
 
   schemas:
     User:
@@ -257,7 +310,7 @@ components:
         username: username
     UserLogin:
       required:
-        - email
+        - username
         - password
       type: object
       properties:
@@ -294,7 +347,7 @@ components:
         admin: true
         email: email
         username: username
-    inline_response_400:
+    FailResponse:
       type: object
       properties:
         message:

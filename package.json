@@ -20,6 +20,7 @@
         "dotenv-parse-variables": "^2.0.0",
         "express": "^4.18.2",
         "express-openapi-validator": "^5.0.6",
+        "jsonwebtoken": "^9.0.2",
         "mongodb-memory-server": "^8.15.1",
         "mongoose": "^7.5.0",
         "morgan": "^1.10.0",
@@ -50,20 +51,11 @@
         "node": ">=16.0.0"
     },
     "imports": {
-        "#utils/*": [
-            "./src/utils/*"
-        ],
-        "#config": [
-            "./src/config/index.js"
-        ],
-        "#controllers/*": [
-            "./src/api/controllers/*"
-        ],
-        "#services/*": [
-            "./src/api/services/*"
-        ],
-        "#models/*": [
-            "./src/api/models/*"
-        ]
+        "#utils/*": ["./src/utils/*"],
+        "#config": ["./src/config/index.js"],
+        "#controllers/*": ["./src/api/controllers/*"],
+        "#services/*": ["./src/api/services/*"],
+        "#models/*": ["./src/api/models/*"],
+        "#tests/*": ["./src/tests/*"]
     }
 }
