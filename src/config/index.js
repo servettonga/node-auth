@@ -36,7 +36,8 @@ const config = {
     },
     privateKeyFile: parseEnv.PRIVATE_KEY_FILE,
     privateKeyPassphrase: parseEnv.PRIVATE_KEY_PASSPHRASE,
-    publicKeyFile: parseEnv.PUBLIC_KEY_FILE
+    publicKeyFile: parseEnv.PUBLIC_KEY_FILE,
+    localCacheTtl: Number(parseEnv.LOCAL_CACHE_TTL)
 }
 
 export default config;

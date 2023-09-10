@@ -141,4 +141,18 @@ describe('GET /api/v1/login', () => {
         })
     })
 
+    it('login performance test', async () => {
+        const now = new Date().getTime()
+        let rps;
+        for(rps = 1; new Date().getTime() - now < 1000; rps++) {
+            await request(server)
+                .post('/api/v1/login')
+                .send({
+                    username: dummy.username,
+                    password: dummy.password
+                })
+        }
+        console.log(`rps: ${rps}`)
+    })
+
 })

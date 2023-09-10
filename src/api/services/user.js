@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import config from '#config'
 import logger from '#utils/logger.js'
 import User from '#models/user.js';
+import cacheLoad from "#utils/cacheLoad.js";
 
 
 /* istanbul ignore next */
@@ -47,17 +48,22 @@ export async function createAuthToken(userId) {
 
 export async function login(username, password) {
     try {
+        if (!username || !password) {
+            return {error: { type: 'invalid_request', message: 'Username or password fields can\'t be blank' } }
+        }
         let user;
         let passwordValid;
         let authToken;
-        if (username && password) {
-            user = await User.findOne({ username: username });
+        if (cacheLoad.has(username)) {
+            user = cacheLoad.get(username);
         } else {
-            return {error: { type: 'invalid_request', message: 'Username or password fields can\'t be blank' } }
+            user = await User.findOne({ username: username });
         }
         if (user) {
             passwordValid = await user.comparePassword(password);
             authToken = await createAuthToken(user._id.toString());
+            cacheLoad.set(username, user);
+            cacheLoad.set(user._id.toString(), user)
         }
         if (!passwordValid || !user) {
             return {error: { type: 'invalid_credentials', message: 'Invalid username or password' } }
