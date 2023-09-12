@@ -3,5 +3,5 @@ export function writeJsonResponse(res, code, payload, headers) {
     res
         .writeHead(code, {...headers, 'Content-Type': 'application/json'})
         .status(code)
-        .end(data)
+        .end(data);
 }

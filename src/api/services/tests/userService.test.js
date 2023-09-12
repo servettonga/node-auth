@@ -2,18 +2,30 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { faker } from '@faker-js/faker';
 import jwt from 'jsonwebtoken'
 
-import * as userService from '#services/user.js';
+import * as userService from '#services/userService.js';
 import { createDummy, createAuthorizedDummy } from "#tests/userTest.js";
 import * as db from '#utils/db.js';
-import { createAuthToken } from "#services/user.js";
+import { createAuthToken } from "#services/userService.js";
+import cacheExternal from "#utils/cacheExternal.js";
+import request from "supertest";
+import { performance, PerformanceObserver } from "perf_hooks";
 
 
 beforeAll(async () => {
     await db.setup();
+    await cacheExternal.open();
+
+    const perfObserver = new PerformanceObserver((items) => {
+        items.getEntries().forEach((entry) => {
+            console.log(`test: ${entry.name}\nrps: ${Math.floor(1000 / entry.duration)}`);
+        })
+    })
+    perfObserver.observe({ entryTypes: ["measure"], buffered: true});
 })
 
 afterAll(async () => {
     await db.teardown();
+    await cacheExternal.close();
 })
 
 describe('login', () => {
@@ -47,6 +59,19 @@ describe('login', () => {
         await expect(userService.login()).resolves.toEqual({
             error: {type: 'invalid_request', message: expect.stringMatching(/username/i)}
         })
+    })
+
+    it('login performance', async () => {
+        const dummy = await createAuthorizedDummy()
+        const now = new Date().getTime()
+        let i;
+        for (i = 0; new Date().getTime() - now < 1000; i++) {
+            await userService.login({
+                username: dummy.username,
+                password: dummy.password
+            })
+        }
+        console.log(`User service - login rps: ${i}`)
     })
 
 })
@@ -93,13 +118,11 @@ describe('authentication', () => {
 
     it('authentication performance test', async () => {
         const dummy = await createAuthorizedDummy()
-        const now = new Date().getTime()
-        let i = 0
-        do {
-            i += 1
-            await userService.authentication(`Bearer ${dummy.token}`)
-        } while (new Date().getTime() - now < 1000)
-        console.log(`auth performance: ${i}`)
+        performance.mark("req-start")
+        await userService.authentication(`Bearer ${dummy.token}`)
+        performance.mark("req-end")
+        performance.measure("authentication-unit", "req-start", "req-end")
+
     })
 
 })

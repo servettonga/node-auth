@@ -1,19 +1,19 @@
-import { authentication } from '#services/user.js'
+import { authentication } from '#services/userService.js';
 import { writeJsonResponse } from '#utils/express.js';
 import logger from '#utils/logger.js';
 
 
 export async function auth(req, res, next) {
     try {
-        const token = req.header('authorization')
-        const response = await authentication(token)
+        const token = req.header('authorization');
+        const response = await authentication(token);
         if (!response.error) {
             res.locals.auth = {
                 userId: response.userId
             }
-            next()
+            next();
         } else {
-            writeJsonResponse(res, 401, response)
+            writeJsonResponse(res, 401, response);
         }
 
     }
@@ -21,8 +21,8 @@ export async function auth(req, res, next) {
         /* istanbul ignore next */
         writeJsonResponse(res, 500, {
             error: {
-                type: 'InternalServerError',
-                message: error.message
+                type: 'internal_server_error',
+                message: 'Internal Server Error'
             }
         })
     }

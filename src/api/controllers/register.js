@@ -1,7 +1,7 @@
 import User from '#models/user.js'
 import { writeJsonResponse } from '#utils/express.js';
 import logger from "#utils/logger.js";
-import { createUser } from '#services/user.js'
+import { createUser } from '#services/userService.js'
 
 export async function registerUser(req, res, next) {
     try {

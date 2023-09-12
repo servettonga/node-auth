@@ -48,6 +48,10 @@ fi
 if [[ "$run" == "1" ]]; then
   command -v docker >/dev/null 2>&1 || { echo >&2 "'docker' is not install installed. Aborting."; exit 1; }
 
+  name='redis'
+  [[ $(docker ps -f "name=$name" --format '{{.Names}}') == $name ]] ||
+  docker run --rm -d -p 6379:6379 --name "$name"  redis --save ''
+
   name='mongo'
   [[ $(docker ps -f "name=$name" --format '{{.Names}}') == $name ]] ||
   docker run --rm -d -p 27017-27019:27017-27019 -v $PWD/../docker/mongodb:/data/db --name "$name"  mongo:latest

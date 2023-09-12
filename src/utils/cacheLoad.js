@@ -36,6 +36,11 @@ class CacheLocal {
         this.#cache.set(key, value)
     }
 
+    has(key) {
+        return this.#cache.has(key)
+    }
+
 }
+
 
 export default CacheLocal.getInstance()

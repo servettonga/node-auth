@@ -37,7 +37,8 @@ const config = {
     privateKeyFile: parseEnv.PRIVATE_KEY_FILE,
     privateKeyPassphrase: parseEnv.PRIVATE_KEY_PASSPHRASE,
     publicKeyFile: parseEnv.PUBLIC_KEY_FILE,
-    localCacheTtl: Number(parseEnv.LOCAL_CACHE_TTL)
+    localCacheTtl: Number(parseEnv.LOCAL_CACHE_TTL),
+    redisUrl: parseEnv.REDIS_URL
 }
 
 export default config;

@@ -1,5 +1,5 @@
 /* istanbul ignore file */
-import bcrypt from 'bcrypt';
+import argon2 from 'argon2';
 import { Schema, model } from 'mongoose';
 import validator from 'validator';
 
@@ -37,10 +37,9 @@ const userSchema = new Schema({
     .index({ username: 1 }, { unique: true, collation: { locale: 'en', strength: 1 }, sparse: true })
 
     .pre('save', async function (next) {
-        const salt = await bcrypt.genSalt(10);
         if (this.isModified('password') || this.isNew) {
-            const encryptedPassword = await bcrypt.hash(this.get('password'), salt);
-            this.set('password', encryptedPassword);
+            const hashed = await argon2.hash(this.get('password'));
+            this.set('password', hashed);
         }
         next();
     })
@@ -57,9 +56,9 @@ const userSchema = new Schema({
 
     .method('comparePassword', async function (password) {
         if (password) {
-            return await bcrypt.compare(password, this.password);
+            return await argon2.verify(this.password, password);
         }
-        throw new Error('Invalid password');
+        throw Error('Invalid password');
     })
 
 export default model('User', userSchema);

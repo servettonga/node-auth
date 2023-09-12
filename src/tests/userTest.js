@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker';
 
-import * as userService from '#services/user.js';
+import * as userService from '#services/userService.js';
 import User from '#models/user.js'
-import { createAuthToken } from "#services/user.js";
+import { createAuthToken } from "#services/userService.js";
 
 export function dummyUser() {
     return {
