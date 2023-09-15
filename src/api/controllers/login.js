@@ -2,6 +2,15 @@ import { login } from "#services/userService.js";
 import { writeJsonResponse } from "#utils/express.js";
 
 
+/**
+ * Log in to the system
+ * @method
+ * @async
+ * @param {express.Request} req Request
+ * @param {express.Response} res Response
+ * @param {express.NextFunction} next NextFunction
+ * @return {Promise<{response: {message: string}}>}
+ */
 export async function loginUser(req, res) {
     const { username, password } = req.body;
 

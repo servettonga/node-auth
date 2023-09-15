@@ -30,9 +30,10 @@
         "qs": "^6.11.2",
         "redis": "^4.6.8",
         "swagger-routes-express": "^3.3.2",
+        "swagger-ui-express": "^5.0.0",
         "validator": "^13.11.0",
         "winston": "^3.10.0",
-        "yamljs": "^0.3.0"
+        "yaml": "^2.3.2"
     },
     "devDependencies": {
         "@faker-js/faker": "^8.0.2",

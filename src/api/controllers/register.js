@@ -3,6 +3,15 @@ import { writeJsonResponse } from '#utils/express.js';
 import logger from "#utils/logger.js";
 import { createUser } from '#services/userService.js'
 
+/**
+ * Register a user to the system
+ * @method
+ * @async
+ * @param {express.Request} req Request
+ * @param {express.Response} res Response
+ * @param {express.NextFunction} next NextFunction
+ * @return {Promise<{response: {message: string}}>}
+ */
 export async function registerUser(req, res, next) {
     try {
         const user = await createUser(req.body)

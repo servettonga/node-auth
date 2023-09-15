@@ -6,38 +6,50 @@ import logger from '#utils/logger.js';
 
 const redis = config.redisUrl === 'redis-mock' ? redisMock : r;
 
-
-class Cache {
+class cacheExternal {
     static #instance;
     static #initialConnection = false;
     #client;
 
+    /**
+     * @constructor
+     */
     constructor() {
-        if (!Cache.#initialConnection) {
+        if (!cacheExternal.#initialConnection) {
             throw new TypeError('PrivateConstructor is not constructable');
         }
-        Cache.#initialConnection = false;
+        cacheExternal.#initialConnection = false;
     }
 
+    /**
+     * Get an instance of external cache
+     * @returns {cacheExternal}
+     */
     static getInstance() {
-        Cache.#initialConnection = true;
-        if (!Cache.#instance) {
-            Cache.#instance = new Cache();
+        cacheExternal.#initialConnection = true;
+        if (!cacheExternal.#instance) {
+            cacheExternal.#instance = new cacheExternal();
         }
-        return Cache.#instance;
+        return cacheExternal.#instance;
     }
 
+    /**
+     * Connect to Redis database
+     * @async
+     * @returns {Promise<cacheExternal>}
+     * @throws {Error}
+     */
     async open() {
         try {
-            Cache.#client = redis.createClient(config.redisUrl);
-            const client = Cache.#client;
+            this.#client = redis.createClient(config.redisUrl);
+            const client = this.#client;
 
             client.on('connect', () => {
                 logger.info('Redis: connected');
             })
             client.on('ready', () => {
-                if (!Cache.#initialConnection) {
-                    Cache.#initialConnection = false;
+                if (!cacheExternal.#initialConnection) {
+                    cacheExternal.#initialConnection = false;
                 }
                 logger.info('Redis: ready');
             })
@@ -58,6 +70,10 @@ class Cache {
         }
     }
 
+    /**
+     * Disconnect from the database
+     * @returns {Promise<cacheExternal>}
+     */
     async close() {
         try {
             return this.#client.quit();
@@ -66,6 +82,15 @@ class Cache {
         }
     }
 
+    /**
+     * Set a key, value pair
+     * @async
+     * @param key Key to be stored
+     * @param value Value to be stored
+     * @param expireAfter Lifetime of the key, value pair
+     * @returns {Promise<string>} 'OK'
+     * @throws {Error}
+     */
     async setProp(key, value, expireAfter) {
         try {
             return await this.#client
@@ -84,6 +109,13 @@ class Cache {
         }
     }
 
+    /**
+     * Get a key, value pair
+     * @async
+     * @param key Key to be returned
+     * @returns {Promise<object>}
+     * @throws {Error}
+     */
     async getProp(key) {
         try {
             return await this.#client.get(key, (err, result) => {
@@ -102,5 +134,7 @@ class Cache {
 
 }
 
-
-export default Cache.getInstance();
+/** An instance of external cache
+ * @returns {redis.RedisClient | redis-mock.RedisClient}
+ * */
+export default cacheExternal.getInstance();

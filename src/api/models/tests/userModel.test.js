@@ -110,7 +110,8 @@ describe('toJSON', () => {
         expect(json).toEqual({
             email: testUser.email.toLowerCase(),
             username: testUser.username,
-            isAdmin: false,
+            admin: false,
+            active: true,
             created: expect.any(Number),
         })
     })

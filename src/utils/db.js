@@ -4,6 +4,10 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import config from '#config';
 import logger from '#utils/logger.js';
 
+/**
+ * @namespace Database
+ */
+
 mongoose.Promise = global.Promise;
 mongoose.set('debug', process.env.DEBUG !== undefined);
 
@@ -17,6 +21,14 @@ const options = {
 
 let mongoServer;
 
+/**
+ * Setup a database connection
+ * @memberof Database
+ * @async
+ * @method
+ * @returns {Promise<void>}
+ * @throws {Error}
+ */
 export async function setup() {
     try {
         if (config.mongo.url === 'inmemory') {
@@ -55,6 +67,14 @@ export async function setup() {
     }
 }
 
+/**
+ * Disconnect from the database
+ * @memberof Database
+ * @async
+ * @method
+ * @returns {Promise<void>}
+ * @throws {Error}
+ */
 export async function teardown() {
     try {
         await mongoose.disconnect();

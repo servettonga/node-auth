@@ -88,6 +88,7 @@ describe('createUser', () => {
         expect(userInDb.email).toEqual(userToBeCreated.email)
         expect(userInDb.password).not.toEqual(userToBeCreated.password)
         expect(userInDb.isAdmin).toEqual(false)
+        expect(userInDb.active).toEqual(true)
         expect(userInDb.created.getTime()).toBeLessThan(Date.now())
     })
 

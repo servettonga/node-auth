@@ -1,4 +1,3 @@
-import bcrypt from "bcrypt";
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
 
@@ -8,6 +7,7 @@ import User from '#models/user.js';
 import cacheLoad from "#utils/cacheLoad.js";
 import cacheExternal from "#utils/cacheExternal.js";
 
+/** @namespace UserService */
 
 /* istanbul ignore next */
 export async function getJwtConfig() {
@@ -28,6 +28,14 @@ export async function getJwtConfig() {
 
 const jwtCfg = await getJwtConfig();
 
+/**
+ * Create authentication token for user by User ID
+ * @method
+ * @memberof UserService
+ * @async
+ * @param {string} userId User ID
+ * @return {Promise<{expireAt: Date, token: (Object|*)}|{error: string}>}
+ */
 /* istanbul ignore next */
 export async function createAuthToken(userId) {
     try {
@@ -51,6 +59,15 @@ export async function createAuthToken(userId) {
     }
 }
 
+/**
+ * Login user into the system and return token
+ * @method
+ * @memberof UserService
+ * @async
+ * @param {string} username Username
+ * @param {string} password Password
+ * @return {Promise<{expireAt: Date, userId: string, token: (Object|*)}|{error: {type: string, message: string}}>}
+ */
 export async function login(username, password) {
     try {
         if (!username || !password) {
@@ -77,6 +94,14 @@ export async function login(username, password) {
     }
 }
 
+/**
+ * Create a new User
+ * @method
+ * @async
+ * @memberof UserService
+ * @param {User} user User to be created
+ * @return {Promise{User} | {error: {type: string, message: string}}>}
+ */
 export async function createUser(user) {
     try {
         const newUser = new User(user);
@@ -91,6 +116,14 @@ export async function createUser(user) {
     }
 }
 
+/**
+ * Authenticate a token
+ * @method
+ * @async
+ * @memberof UserService
+ * @param {string} bearerToken Token to be verified
+ * @return {Promise<{userId: Object} | {error: {type: string, message: string}}>}
+ */
 export async function authentication(bearerToken) {
     try {
         const token = bearerToken.replace('Bearer ', '');

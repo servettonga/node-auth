@@ -2,13 +2,14 @@ import cacheExternal from "#utils/cacheExternal.js";
 import * as db from '#utils/db.js';
 import { createServer } from '#utils/server.js';
 import logger from '#utils/logger.js';
+import config from '#config'
 
 try {
+    await db.setup();
     await cacheExternal.open();
-    db.setup();
-    const server = await createServer();
-    server.listen(3000, () => {
-        logger.info(`Server is running on port 3000`)
+    const server = createServer();
+    server.listen(config.serverPort, () => {
+        logger.info(`Server is running on port ${config.serverPort}`)
     })
 } catch (error) {
     logger.error(`Error: ${error}`)

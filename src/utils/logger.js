@@ -2,16 +2,6 @@
 import winston from 'winston';
 import config from '#config';
 
-// npm debug levels (winston default):
-// {
-//   error: 0,
-//   warn: 1,
-//   info: 2,
-//   http: 3
-//   verbose: 4,
-//   debug: 5,
-//   silly: 6
-// }
 
 const prettyJson = winston.format.printf(info => {
     if (info.message.constructor === Object) {
@@ -21,6 +11,22 @@ const prettyJson = winston.format.printf(info => {
     return `${info.timestamp} ${info.label || ''} ${info.level}: ${info.message}`;
 })
 
+/**
+ * Formatted logger
+ * @method
+ * @exports winston.Logger
+ * @example
+ * Logging levels:
+ *
+ *   error: 0,
+ *   warn: 1,
+ *   info: 2,
+ *   http: 3
+ *   verbose: 4,
+ *   debug: 5,
+ *   silly: 6
+ *
+ * */
 const logger = winston.createLogger({
     level: config.loggerLevel === 'silent' ? undefined : config.loggerLevel,
     silent: config.loggerLevel === 'silent',
@@ -35,5 +41,6 @@ const logger = winston.createLogger({
     defaultMeta: { service: 'user-service' },
     transports: [new winston.transports.Console()]
 })
+
 
 export default logger;

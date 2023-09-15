@@ -2,7 +2,16 @@ import { authentication } from '#services/userService.js';
 import { writeJsonResponse } from '#utils/express.js';
 import logger from '#utils/logger.js';
 
-
+/**
+ * Authentication for the secured routes
+ * @method
+ * @async
+ * @param {express.Request} req Request
+ * @param {express.Response} res Response
+ * @param {express.NextFunction} next NextFunction
+ * @return {Promise<void>}
+ * @throws {Error}
+ */
 export async function auth(req, res, next) {
     try {
         const token = req.header('authorization');

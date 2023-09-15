@@ -23,8 +23,8 @@ paths:
     post:
       tags:
         - users
-      summary: Registers a new user
-      description: Adds a user to the system
+      summary: Register a user to the system
+      description: Register a user to the system
       operationId: registerUser
       requestBody:
         content:
@@ -62,7 +62,6 @@ paths:
     patch:
       tags:
         - users
-        - admins
       summary: Updates user's information
       description: Updates user information
       operationId: updateUser
@@ -81,7 +80,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User"
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: username
+                email:
+                  type: string
+                  example: user@email.com
+                password:
+                  type: string
+                  example: password
+                active:
+                  type: boolean
       responses:
         "200":
           description: User's updated
@@ -113,9 +124,8 @@ paths:
     post:
       tags:
         - users
-        - admins
-      summary: Logs into the system
-      description: Logs in a user to the system
+      summary: Log in to the system
+      description: Log in to the system
       operationId: loginUser
       requestBody:
         content:
@@ -193,7 +203,15 @@ paths:
             type: string
         - name: admin
           in: query
-          description: User groups
+          description: Is admin
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: boolean
+        - name: active
+          in: query
+          description: Active
           required: false
           style: form
           explode: true
@@ -205,7 +223,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserList"
+                type: object
+                example: [
+                  { username: user,
+                    email: user@email.com,
+                    admin: false,
+                    active: true},
+                  { username: admin,
+                    email: admin@email.com,
+                    admin: true,
+                    active: true}
+                ]
         "401":
           description: Unauthorized request
         "500":
@@ -215,7 +243,6 @@ paths:
   /user:
     get:
       tags:
-        - admins
         - users
       summary: Returns logged in user
       description: Get the details of the user
@@ -238,7 +265,6 @@ paths:
   /logout:
     get:
       tags:
-        - admins
         - users
       summary: Logs out of the system
       description: Logs out of the system and clear cookies
@@ -275,6 +301,15 @@ paths:
           description: User's not found
       x-swagger-router-controller: Admins
 
+  /api-docs:
+    get:
+      tags:
+        - users
+      summary: API Documentation
+      responses:
+        "200":
+          description: success
+
 components:
   securitySchemes:
     bearerAuth:
@@ -299,31 +334,29 @@ components:
         password:
           type: string
           example: password
-        isAdmin:
+        admin:
+          type: boolean
+        active:
           type: boolean
         created:
           type: number
       example:
-        password: password
-        admin: true
-        email: user@email.com
         username: username
+        email: user@email.com
+        password: password
+        admin: false
     UserLogin:
       required:
         - username
         - password
       type: object
       properties:
-        email:
+        username:
           type: string
-          example: user@email.com
+          example: username
         password:
           type: string
           example: password
-    UserList:
-      type: object
-      items:
-        $ref: "#/components/schemas/User"
     inline_response_200:
       type: object
       properties:

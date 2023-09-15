@@ -24,17 +24,20 @@ const userSchema = new Schema({
             'Please provide a valid email address'
         ]
     },
-    isAdmin: {
+    admin: {
         type: Boolean,
         default: false
+    },
+    active: {
+        type: Boolean,
+        default: true
     },
     created: {
         type: Date,
         default: Date.now
-    }
-},
-    { strict: true })
+    }}, { strict: true })
     .index({ username: 1 }, { unique: true, collation: { locale: 'en', strength: 1 }, sparse: true })
+
 
     .pre('save', async function (next) {
         if (this.isModified('password') || this.isNew) {
@@ -61,4 +64,12 @@ const userSchema = new Schema({
         throw Error('Invalid password');
     })
 
+/**
+ * User schema
+ * @returns mongoose.Model
+ * @param {Object} User
+ * @param {string} User.username Unique username
+ * @param {string} User.email Unique email
+ * @param {string} User.password At least 8 characters long
+ */
 export default model('User', userSchema);

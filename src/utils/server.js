@@ -2,21 +2,31 @@ import bodyParser from 'body-parser';
 import express from 'express';
 import * as OpenApiValidator from 'express-openapi-validator';
 import { connector, summarise } from 'swagger-routes-express';
+import swaggerUi from 'swagger-ui-express';
 import morgan from 'morgan';
 import morganBody from 'morgan-body';
-import YAML from 'yamljs';
+import { parse } from 'yaml';
+import fs from 'fs';
 
 import * as api from '#controllers/index.js';
 import config from '#config';
 import logger from '#utils/logger.js';
 
+/** @namespace Server */
 
-export async function createServer() {
-  const apiSpecFile = './config/openapi.yml';
-  const apiDefinition = YAML.load(apiSpecFile);
+/**
+ * Create server
+ * @memberof Server
+ * @returns {Promise<Express>}
+ */
+export function createServer() {
+  // Load API definition
+  const apiSpecFile = fs.readFileSync('./config/openapi.yml', 'utf-8');
+  const apiDefinition = parse(apiSpecFile);
   const apiSummary = summarise(apiDefinition);
   logger.info(apiSummary);
 
+  // Server settings
   const server = express();
   server.use(bodyParser.json());
 
@@ -28,13 +38,15 @@ export async function createServer() {
     morganBody(server);
   }
 
+  // API Documentation
+  server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(apiDefinition));
+
   // API validator
   const validatorOptions = {
-    apiSpec: apiSpecFile,
+    apiSpec: './config/openapi.yml',
     validateRequests: true,
     validateResponses: true
   }
-
   server.use(OpenApiValidator.middleware(validatorOptions));
 
   server.use((err, _req, res, _next) => {
@@ -47,6 +59,7 @@ export async function createServer() {
     })
   })
 
+  // Routes
   const connect = connector(api, apiDefinition, {
     onCreateRoute: (method, descriptor) => {
       descriptor.shift()
