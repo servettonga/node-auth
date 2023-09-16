@@ -1,6 +1,6 @@
 /**
  * Write formatted JSON response
- * @param {express.Response} res Resource
+ * @param {express.Response} res Response
  * @param {int} code Response Code
  * @param {JSON | object} payload Payload to send
  * @param headers Headers to set

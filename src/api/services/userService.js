@@ -116,6 +116,18 @@ export async function createUser(user) {
     }
 }
 
+export async function deleteUser(userId) {
+    try {
+        return await User.findByIdAndDelete(userId);
+    } catch (err) {
+        return {
+            error: {
+                message: err
+            }
+        }
+    }
+}
+
 /**
  * Authenticate a token
  * @method

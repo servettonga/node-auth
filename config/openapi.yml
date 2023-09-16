@@ -30,7 +30,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User"
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: username
+                email:
+                  type: string
+                  example: user@email.com
+                password:
+                  type: string
+                  example: password
       responses:
         "200":
           description: User registry

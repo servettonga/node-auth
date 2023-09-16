@@ -43,6 +43,7 @@ class cacheExternal {
         try {
             this.#client = redis.createClient(config.redisUrl);
             const client = this.#client;
+            await client.connect();
 
             client.on('connect', () => {
                 logger.info('Redis: connected');
@@ -93,19 +94,18 @@ class cacheExternal {
      */
     async setProp(key, value, expireAfter) {
         try {
-            return await this.#client
-                .set(key, value, (err, result) => {
+            return this.#client
+                .set(key, value, 'EX', expireAfter, (err, result) => {
                 if (err) {
-                    return err;
+                    throw err;
                 }
                 if (result === false) {
                     throw Error('Redis connection error');
                 }
-                return result;
+                return result; // OK
                 })
-                .expire(key, expireAfter);
         } catch (err) {
-            logger.error(err)
+            logger.error(`External cache set error: ${err}`);
         }
     }
 
@@ -118,17 +118,17 @@ class cacheExternal {
      */
     async getProp(key) {
         try {
-            return await this.#client.get(key, (err, result) => {
+            return this.#client.get(key, (err, result) => {
                 if (err) {
-                    return err;
+                    throw err;
                 }
                 if (result && result === false) {
                     throw Error('Redis connection error');
                 }
-                return result;
+                return result; // value
             })
         } catch (err) {
-            logger.error(err);
+            logger.error(`External cache get error: ${err}`);
         }
     }
 
