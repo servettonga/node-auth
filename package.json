@@ -20,6 +20,7 @@
         "dotenv-parse-variables": "^2.0.0",
         "express": "^4.18.2",
         "express-openapi-validator": "^5.0.6",
+        "ioredis": "^5.3.2",
         "jsonwebtoken": "^9.0.2",
         "mongodb-memory-server": "^8.15.1",
         "mongoose": "^7.5.0",
@@ -28,7 +29,6 @@
         "node-cache": "^5.1.2",
         "openapi-backend": "^5.9.2",
         "qs": "^6.11.2",
-        "redis": "^4.6.8",
         "swagger-routes-express": "^3.3.2",
         "swagger-ui-express": "^5.0.0",
         "validator": "^13.11.0",
@@ -41,7 +41,6 @@
         "@vitest/coverage-v8": "^0.34.3",
         "c8": "^8.0.1",
         "nodemon": "^3.0.1",
-        "redis-mock": "^0.56.3",
         "supertest": "^6.3.3",
         "vitest": "^0.34.3"
     },

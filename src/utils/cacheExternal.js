@@ -1,10 +1,8 @@
-import * as r from 'redis';
-import redisMock from 'redis-mock';
+import Redis from 'ioredis'
 
 import config from '#config';
 import logger from '#utils/logger.js';
 
-const redis = config.redisUrl === 'redis-mock' ? redisMock : r;
 
 class cacheExternal {
     static #instance;
@@ -41,33 +39,12 @@ class cacheExternal {
      */
     async open() {
         try {
-            this.#client = redis.createClient(config.redisUrl);
+            this.#client = new Redis(config.redisUrl);
             const client = this.#client;
             await client.connect();
-
-            client.on('connect', () => {
-                logger.info('Redis: connected');
-            })
-            client.on('ready', () => {
-                if (!cacheExternal.#initialConnection) {
-                    cacheExternal.#initialConnection = false;
-                }
-                logger.info('Redis: ready');
-            })
-            client.on('reconnecting', () => {
-                logger.info('Redis: reconnecting');
-            })
-            client.on('end', () => {
-                logger.info('Redis: end');
-            })
-            client.on('disconnected', () => {
-                logger.error('Redis: disconnected');
-            })
-            client.on('error', (err) => {
-                logger.error(`Redis: error: ${err}`);
-            })
+            logger.info('Redis: connected');
         } catch (err) {
-            logger.error(err);
+            logger.error(`Redis: error: ${err}`);
         }
     }
 
@@ -77,6 +54,7 @@ class cacheExternal {
      */
     async close() {
         try {
+            logger.info('Redis: disconnected');
             return this.#client.quit();
         } catch (err) {
             logger.error(err);
