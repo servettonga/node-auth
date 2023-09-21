@@ -1,4 +1,3 @@
-import User from '#models/user.js'
 import { writeJsonResponse } from '#utils/express.js';
 import logger from "#utils/logger.js";
 import { createUser } from '#services/userService.js'
@@ -10,29 +9,43 @@ import { createUser } from '#services/userService.js'
  * @param {express.Request} req Request
  * @param {express.Response} res Response
  * @param {express.NextFunction} next NextFunction
- * @return {Promise<{response: {message: string}}>}
+ * @return {Promise<{userId: string} | {error: string}>}
  */
 export async function registerUser(req, res, next) {
     try {
-        const user = await createUser(req.body)
-        writeJsonResponse(res, 200, {
-            response: `User's created: ${req.body.username}`
-        })
-    } catch (error) {
-        if ('username' in error.keyPattern) {
+        const { username, email, password } = req.body;
+        const response = await createUser(username, email, password);
+        const stringified = JSON.stringify(response).toLowerCase();
+        if (!response.error) {
+            writeJsonResponse(
+                res,
+                200,
+                {userId: response.userId, token: response.token},
+                {'X-Expires-After': response.expireAt.toISOString()}
+            )
+        } else if (stringified.includes('username')) {
             writeJsonResponse(res, 409, {
                 error: 'Username\'s already registered',
-            })
-        } else if ('email' in error.keyPattern) {
+            });
+        } else if (stringified.includes('email')) {
             writeJsonResponse(res, 409, {
                 error: 'Email\'s already registered',
-            })
-        }
-        else {
+            });
+        } else if (stringified.includes('required')) {
+            writeJsonResponse(res, 400, {
+                error: 'Required fields can not be blank',
+            });
+        } else {
             writeJsonResponse(res, 500, {
-                error: 'Internal Server Error',
-                message: error.messge
-            })
+                error: 'internal_server_error',
+                message: 'Internal Server Error'
+            });
         }
+    } catch (error) {
+        logger.warn('User registration error');
+        writeJsonResponse(res, 500, {
+            error: 'Internal Server Error',
+            message: error
+        });
     }
 }

@@ -99,14 +99,37 @@ export async function login(username, password) {
  * @method
  * @async
  * @memberof UserService
- * @param {User} user User to be created
+ * @param {string} username Unique username
+ * @param {string} email Unique email
+ * @param {string} password At least 8 character password
  * @return {Promise{User} | {error: {type: string, message: string}}>}
  */
-export async function createUser(user) {
+export async function createUser(username, email, password) {
     try {
-        const newUser = new User(user);
-        return await newUser.save();
+        let response;
+        if (username && email && password) {
+            const newUser = new User({username, email: email.toLowerCase(), password});
+            response = await newUser.save();
+        } else {
+            return {
+                error: {
+                    type: 'validation_error',
+                    message: 'Required fields can not be blank'
+                }
+            }
+        }
+        if (response) {
+            return await login(username, password);
+        }
     } catch (err) {
+        if (err.code === 11000 || err.errors) {
+            return {
+                error: {
+                    type: 'validation_error',
+                    message: err.message
+                }
+            }
+        }
         return {
             error: {
                 type: 'internal_server_error',
@@ -116,6 +139,11 @@ export async function createUser(user) {
     }
 }
 
+/**
+ * Delete a user from the system
+ * @param userId
+ * @return {Promise<{userId: Object} | {error: {type: string, message: string}}>}
+ */
 export async function deleteUser(userId) {
     try {
         return await User.findByIdAndDelete(userId);
@@ -159,5 +187,6 @@ export async function authentication(bearerToken) {
         })
     } catch (error) {
         logger.warn(`authentication failed: ${error}`);
+        throw error
     }
 }

@@ -44,7 +44,7 @@ class cacheExternal {
             await client.connect();
             logger.info('Redis: connected');
         } catch (err) {
-            logger.error(`Redis: error: ${err}`);
+            logger.error(`Redis - ${err}`);
         }
     }
 

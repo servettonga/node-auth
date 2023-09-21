@@ -7,7 +7,7 @@
     "author": "Servet <serveth@gmail.com>",
     "license": "MIT",
     "scripts": {
-        "build": "tsc",
+        "build": "",
         "start": "",
         "dev": "ENV_FILE=./config/.env.dev yarn nodemon",
         "test:unit": "ENV_FILE=./config/.env.test vitest --coverage"

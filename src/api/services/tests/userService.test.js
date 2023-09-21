@@ -78,28 +78,28 @@ describe('login', () => {
 
 describe('createUser', () => {
     it('should create and return a new user', async () => {
-        const userToBeCreated = {
-            username: faker.internet.displayName(),
-            email: faker.internet.email().toLowerCase(),
-            password: faker.internet.password(10)
-        }
-        const userInDb = await userService.createUser(userToBeCreated)
-        expect(userInDb.username).toEqual(userToBeCreated.username)
-        expect(userInDb.email).toEqual(userToBeCreated.email)
-        expect(userInDb.password).not.toEqual(userToBeCreated.password)
-        expect(userInDb.admin).toEqual(false)
-        expect(userInDb.active).toEqual(true)
-        expect(userInDb.created.getTime()).toBeLessThan(Date.now())
-    })
+        const username = faker.internet.displayName();
+        const email = faker.internet.email().toLowerCase();
+        const password = faker.internet.password(10);
+        const userIdReg = /^[a-f0-9]{24}$/;
+        const tokenReg = /^([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-+\/=]*)/gm;
+        await expect(userService.createUser(username, email, password)).resolves.toEqual({
+            userId: expect.stringMatching(userIdReg),
+            token: expect.stringMatching(tokenReg),
+            expireAt: expect.any(Date)
+        })
+    });
 
     it('should reject with error if a parameter was missing', async () => {
-        const userToBeCreated = {
-            username: faker.internet.displayName(),
-            email: faker.internet.email().toLowerCase(),
-        }
-        await expect(userService.createUser(userToBeCreated)).not.resolves
-
-    })
+        const username = faker.internet.displayName();
+        const email = faker.internet.email().toLowerCase();
+        await expect(userService.createUser(username, email)).resolves.toEqual({
+            error: {
+                type: 'validation_error',
+                message: expect.stringMatching(/required/i)
+            }
+        });
+    });
 
 })
 
