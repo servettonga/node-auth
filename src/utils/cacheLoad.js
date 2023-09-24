@@ -1,7 +1,5 @@
-import NodeCache from "node-cache";
-
-import config from '#config'
-
+import config from '#config';
+import NodeCache from 'node-cache';
 
 /**
  * @class CacheLocal
@@ -25,7 +23,7 @@ class CacheLocal {
             stdTTL: ttlSeconds,
             checkperiod: ttlSeconds * 0.2,
             useClones: false
-        })
+        });
     }
 
     /**
@@ -46,7 +44,7 @@ class CacheLocal {
      * @returns {object}
      */
     get(key) {
-        return this.#cache.get(key)
+        return this.#cache.get(key);
     }
 
     /**
@@ -55,7 +53,7 @@ class CacheLocal {
      * @param value Value to be stored
      */
     set(key, value) {
-        this.#cache.set(key, value)
+        this.#cache.set(key, value);
     }
 
     /**
@@ -64,7 +62,16 @@ class CacheLocal {
      * @returns {boolean}
      */
     has(key) {
-        return this.#cache.has(key)
+        return this.#cache.has(key);
+    }
+
+    /**
+     * Deletes a key from the cache
+     * @param key Key to be deleted
+     * @returns {Number} Returns number of deleted entries
+     */
+    del(key) {
+        return this.#cache.del(key);
     }
 
 }
@@ -72,4 +79,4 @@ class CacheLocal {
 /** An instance of local cache
  * @returns {NodeCache}
  * */
-export default CacheLocal.getInstance()
+export default CacheLocal.getInstance();

@@ -1,15 +1,14 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { faker } from '@faker-js/faker';
-import jwt from 'jsonwebtoken'
+import User from '#models/user.js';
 
 import * as userService from '#services/userService.js';
-import { createDummy, createAuthorizedDummy } from "#tests/userTest.js";
+import { createAuthToken } from '#services/userService.js';
+import { createAuthorizedDummy, createDummy } from '#tests/userTest.js';
+import cacheExternal from '#utils/cacheExternal.js';
 import * as db from '#utils/db.js';
-import { createAuthToken } from "#services/userService.js";
-import cacheExternal from "#utils/cacheExternal.js";
-import request from "supertest";
-import { performance, PerformanceObserver } from "perf_hooks";
-
+import { faker } from '@faker-js/faker';
+import jwt from 'jsonwebtoken';
+import { performance, PerformanceObserver } from 'perf_hooks';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 beforeAll(async () => {
     await db.setup();
@@ -17,16 +16,19 @@ beforeAll(async () => {
 
     const perfObserver = new PerformanceObserver((items) => {
         items.getEntries().forEach((entry) => {
-            console.log(`test: ${entry.name}\nrps: ${Math.floor(1000 / entry.duration)}`);
-        })
-    })
-    perfObserver.observe({ entryTypes: ["measure"], buffered: true});
-})
+            console.log(`test: ${ entry.name }\nrps: ${ Math.floor(1000 / entry.duration) }`);
+        });
+    });
+    perfObserver.observe({ entryTypes: ['measure'], buffered: true });
+});
 
 afterAll(async () => {
     await db.teardown();
     await cacheExternal.close();
-})
+});
+
+const userIdReg = /^[a-f0-9]{24}$/;
+const tokenReg = /^([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-+\/=]*)/gm;
 
 describe('login', () => {
     it('should return JWT token, userId, expireAt to validate login', async () => {
@@ -35,59 +37,57 @@ describe('login', () => {
             userId: dummy.userId,
             token: expect.stringMatching(/^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/),
             expireAt: expect.any(Date)
-        })
-    })
+        });
+    });
 
     it('should reject with error if username does not exist', async () => {
         const fake = {
             username: faker.internet.displayName(),
             password: faker.internet.password(10)
-        }
+        };
         await expect(userService.login(fake.username, fake.password)).resolves.toEqual({
-            error: {type: 'invalid_credentials', message: 'Invalid username or password'}
-        })
-    })
+            error: { type: 'invalid_credentials', message: 'Invalid username or password' }
+        });
+    });
 
     it('should reject with error if password is wrong', async () => {
         const dummy = await createDummy();
         await expect(userService.login(dummy.username, faker.internet.password(10))).resolves.toEqual({
-            error: {type: 'invalid_credentials', message: 'Invalid username or password'}
-        })
-    })
+            error: { type: 'invalid_credentials', message: 'Invalid username or password' }
+        });
+    });
 
     it('should reject with error if no parameter were passed', async () => {
         await expect(userService.login()).resolves.toEqual({
-            error: {type: 'invalid_request', message: expect.stringMatching(/username/i)}
-        })
-    })
+            error: { type: 'invalid_request', message: expect.stringMatching(/username/i) }
+        });
+    });
 
     it('login performance', async () => {
-        const dummy = await createAuthorizedDummy()
-        const now = new Date().getTime()
+        const dummy = await createAuthorizedDummy();
+        const now = new Date().getTime();
         let i;
         for (i = 0; new Date().getTime() - now < 1000; i++) {
             await userService.login({
                 username: dummy.username,
                 password: dummy.password
-            })
+            });
         }
-        console.log(`User service - login rps: ${i}`)
-    })
+        console.log(`User service - login rps: ${ i }`);
+    });
 
-})
+});
 
 describe('createUser', () => {
     it('should create and return a new user', async () => {
         const username = faker.internet.displayName();
         const email = faker.internet.email().toLowerCase();
         const password = faker.internet.password(10);
-        const userIdReg = /^[a-f0-9]{24}$/;
-        const tokenReg = /^([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-+\/=]*)/gm;
         await expect(userService.createUser(username, email, password)).resolves.toEqual({
             userId: expect.stringMatching(userIdReg),
             token: expect.stringMatching(tokenReg),
             expireAt: expect.any(Date)
-        })
+        });
     });
 
     it('should reject with error if a parameter was missing', async () => {
@@ -101,42 +101,79 @@ describe('createUser', () => {
         });
     });
 
-})
+});
+
+describe('updateUser', () => {
+    it('should update user', async () => {
+        const dummy = await createDummy();
+        const newEmail = faker.internet.email().toLowerCase();
+        await expect(userService.updateUser(dummy, { email: newEmail })).resolves.toEqual({
+            userId: expect.stringMatching(userIdReg),
+            token: expect.stringMatching(tokenReg),
+            expireAt: expect.any(Date)
+        });
+        const updatedUser = await User.findById(dummy.userId);
+        expect(updatedUser.email).toEqual(newEmail);
+    });
+
+    it('should reject with error if invalid user id passed', async () => {
+        await expect(userService.updateUser({ _id: 'invalid' }, { email: 'test@test.com' })).resolves.toEqual({
+            error: {
+                type: 'not_found_error',
+                message: 'User not found'
+            }
+        });
+    });
+
+    it('should reject with error if invalid fields passed', async () => {
+        const dummy = await createDummy();
+        await expect(userService.updateUser(dummy, { invalid: 'test' })).resolves.toEqual({
+            error: {
+                type: 'validation_error',
+                message: 'Invalid fields'
+            }
+        });
+    });
+});
 
 describe('authentication', () => {
     it('should resolve token true for valid token', async () => {
         const dummy = await createAuthorizedDummy();
         await expect(userService.authentication(dummy.token)).resolves.toEqual({
             userId: dummy.userId
-        })
-    })
+        });
+    });
 
     it('should resolve token false for invalid token', async () => {
         await expect(userService.authentication('invalidToken')).resolves.toEqual({
             error: { type: 'Unauthorized', message: 'Authorization Failed' }
-        })
-    })
+        });
+    });
 
     it('authentication performance test', async () => {
-        const dummy = await createAuthorizedDummy()
-        performance.mark("req-start")
-        await userService.authentication(`Bearer ${dummy.token}`)
-        performance.mark("req-end")
-        performance.measure("authentication-unit", "req-start", "req-end")
+        const dummy = await createAuthorizedDummy();
+        performance.mark('req-start');
+        await userService.authentication(`Bearer ${ dummy.token }`);
+        performance.mark('req-end');
+        performance.measure('authentication-unit', 'req-start', 'req-end');
 
-    })
+    });
 
-})
+});
 
 describe('createAuthToken', () => {
     it('should return internal_server_error if jwt fails', async () => {
         (jwt.sign) = (payload, secretOrPrivateKey, options, callback) => {
-            callback({ error: 'Token couldn\'t be created' }, undefined)
-        }
+            callback({ error: 'Token couldn\'t be created' }, undefined);
+        };
         const dummy = await createDummy();
         await expect(userService.login(dummy.username, dummy.password)).resolves.toEqual({
-            error: {type: 'internal_server_error', message: 'Internal Server Error'}
-        })
-    })
+            error: {
+                type: 'internal_server_error',
+                message: 'Internal Server Error - Login Error ',
+                reason: expect.stringMatching(/token/i)
+            }
+        });
+    });
 
-})
+});

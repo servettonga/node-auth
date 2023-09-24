@@ -72,29 +72,17 @@ paths:
     patch:
       tags:
         - users
-      summary: Updates user's information
+      summary: Update user information
       description: Updates user information
-      operationId: updateUser
+      operationId: update
       security:
         - bearerAuth: []
-      parameters:
-        - name: username
-          in: query
-          description: The username to update
-          required: false
-          style: form
-          explode: true
-          schema:
-            type: string
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                username:
-                  type: string
-                  example: username
                 email:
                   type: string
                   example: user@email.com

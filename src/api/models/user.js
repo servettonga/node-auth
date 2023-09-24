@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 import argon2 from 'argon2';
-import { Schema, model } from 'mongoose';
+import { model, Schema } from 'mongoose';
 import validator from 'validator';
 
 const userSchema = new Schema({
@@ -35,16 +35,32 @@ const userSchema = new Schema({
     created: {
         type: Date,
         default: Date.now
-    }}, { strict: true })
+    }
+}, { strict: true })
     .index({ username: 1 }, { unique: true, collation: { locale: 'en', strength: 1 }, sparse: true })
 
-
     .pre('save', async function (next) {
-        if (this.isModified('password') || this.isNew) {
-            const hashed = await argon2.hash(this.get('password'));
-            this.set('password', hashed);
+        try {
+            if (this.isModified('password') || this.isNew) {
+                const hashed = await argon2.hash(this.get('password'));
+                this.set('password', hashed);
+            }
+            return next();
+        } catch (err) {
+            return next(err);
         }
         next();
+    })
+
+    .pre('findOneAndUpdate', async function (next) {
+        try {
+            if (this._update.password) {
+                this._update.password = await argon2.hash(this._update.password);
+            }
+            next();
+        } catch (err) {
+            return next(err);
+        }
     })
 
     .set('toJSON', {
@@ -58,11 +74,14 @@ const userSchema = new Schema({
     })
 
     .method('comparePassword', async function (password) {
-        if (password) {
-            return await argon2.verify(this.password, password);
+        try {
+            if (password) {
+                return await argon2.verify(this.password, password);
+            }
+        } catch (error) {
+            return false;
         }
-        throw Error('Invalid password');
-    })
+    });
 
 /**
  * User schema

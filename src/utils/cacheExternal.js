@@ -1,8 +1,6 @@
-import Redis from 'ioredis'
-
 import config from '#config';
 import logger from '#utils/logger.js';
-
+import Redis from 'ioredis';
 
 class cacheExternal {
     static #instance;
@@ -44,7 +42,7 @@ class cacheExternal {
             await client.connect();
             logger.info('Redis: connected');
         } catch (err) {
-            logger.error(`Redis - ${err}`);
+            logger.error(`Redis - ${ err }`);
         }
     }
 
@@ -74,16 +72,16 @@ class cacheExternal {
         try {
             return this.#client
                 .set(key, value, 'EX', expireAfter, (err, result) => {
-                if (err) {
-                    throw err;
-                }
-                if (result === false) {
-                    throw Error('Redis connection error');
-                }
-                return result; // OK
-                })
+                    if (err) {
+                        throw err;
+                    }
+                    if (result === false) {
+                        throw Error('Redis connection error');
+                    }
+                    return result; // OK
+                });
         } catch (err) {
-            logger.error(`External cache set error: ${err}`);
+            logger.error(`External cache set error: ${ err }`);
         }
     }
 
@@ -104,9 +102,31 @@ class cacheExternal {
                     throw Error('Redis connection error');
                 }
                 return result; // value
-            })
+            });
         } catch (err) {
-            logger.error(`External cache get error: ${err}`);
+            logger.error(`External cache get error: ${ err }`);
+        }
+    }
+
+    /**
+     * Delete a key from the cache
+     * @async
+     * @param key Key to be deleted
+     * @returns {Promise<*>}
+     */
+    async delProp(key) {
+        try {
+            return this.#client.del(key, (err, result) => {
+                if (err) {
+                    throw err;
+                }
+                if (result === false) {
+                    throw Error('Redis connection error');
+                }
+                return result; // number of keys deleted
+            });
+        } catch (err) {
+            logger.error(`External cache del error: ${ err }`);
         }
     }
 

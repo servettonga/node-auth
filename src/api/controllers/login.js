@@ -1,6 +1,5 @@
-import { login } from "#services/userService.js";
-import { writeJsonResponse } from "#utils/express.js";
-
+import { login } from '#services/userService.js';
+import { writeJsonResponse } from '#utils/express.js';
 
 /**
  * Log in to the system
@@ -15,14 +14,14 @@ export async function loginUser(req, res) {
     const { username, password } = req.body;
 
     try {
-        const tokenRequest =  await login(username, password);
+        const tokenRequest = await login(username, password);
         if (!tokenRequest.error) {
             const { userId, token, expireAt } = tokenRequest;
             writeJsonResponse(
                 res,
                 200,
-                {userId, token},
-                {'X-Expires-After': expireAt.toISOString()}
+                { userId, token },
+                { 'X-Expires-After': expireAt.toISOString() }
             );
         } else {
             switch (tokenRequest.error.type) {
@@ -41,7 +40,7 @@ export async function loginUser(req, res) {
         writeJsonResponse(
             res,
             500,
-            {error: {type: 'internal_server_error', message: 'Internal Server Error'}}
+            { error: { type: 'internal_server_error', message: 'Login failed', e } }
         );
     }
 
