@@ -6,9 +6,6 @@ import logger from '#utils/logger.js';
 export async function whoAmI(req, res) {
     try {
         const user = await authentication(req.header('Authorization'));
-        if (!user) {
-            writeJsonResponse(res, 401, { error: 'Unauthorized request' });
-        }
         const userData = await getUser(user.userId);
         if (userData) {
             writeJsonResponse(res, 200, userData);

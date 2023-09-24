@@ -71,7 +71,7 @@ export async function createAuthToken(userId, renew) {
  * @param {string} password Password
  * @return {Promise<{expireAt: Date, userId: string, token: (Object|*)}|{error: {type: string, message: string}}>}
  */
-export async function login(username, password) {
+export async function loginUser(username, password) {
     try {
         if (!username || !password) {
             return { error: { type: 'invalid_request', message: 'Username or password fields can\'t be blank' } };
@@ -124,7 +124,7 @@ export async function createUser(username, email, password) {
             };
         }
         if (response) {
-            return await login(username, password);
+            return await loginUser(username, password);
         }
     } catch (err) {
         if (err.code === 11000 || err.errors) {
@@ -266,6 +266,7 @@ export async function getUser(userId) {
  * @async
  * @param {string} bearerToken Token to be verified
  * @return {Promise<{userId: string} | {error: {type: string, message: string}}>}
+ * @throws
  */
 export async function authentication(bearerToken) {
     try {
@@ -291,5 +292,26 @@ export async function authentication(bearerToken) {
     } catch (error) {
         logger.warn(`authentication failed: ${ error }`);
         throw error;
+    }
+}
+
+/**
+ * Expire the token and remove it from cache
+ * @memberof UserService
+ * @method
+ * @async
+ * @param {string} userId
+ * @returns void
+ * @throws
+ */
+export async function logoutUser(userId) {
+    try {
+        const token = await cacheExternal.getProp(userId);
+        await cacheExternal.delProp(token);
+        await cacheExternal.delProp(userId);
+        return await jwt.sign({ userId }, jwtCfg.privateSecret, { algorithm: 'RS256', expiresIn: 0});
+    } catch (error) {
+        logger.warn(`Logout failure ${error.message}`)
+        throw error
     }
 }

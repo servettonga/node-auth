@@ -47,9 +47,8 @@ describe('PATH /api/v1/update', () => {
         expect(response.statusCode).toBe(401);
         expect(response.body).toEqual({
             error: {
-                type: expect.stringMatching('request_validation'),
+                type: expect.stringMatching('request_validation_error'),
                 message: expect.stringMatching(/authorization/i),
-                errors: expect.anything()
             }
         });
     });

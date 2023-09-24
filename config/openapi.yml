@@ -124,7 +124,7 @@ paths:
         - users
       summary: Log in to the system
       description: Log in to the system
-      operationId: loginUser
+      operationId: login
       requestBody:
         content:
           application/json:
@@ -274,6 +274,10 @@ paths:
                 $ref: "#/components/schemas/FailResponse"
         "500":
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
       x-swagger-router-controller: Admins
 
   /logout:
@@ -281,11 +285,25 @@ paths:
       tags:
         - users
       summary: Logs out of the system
-      description: Logs out of the system and clear cookies
-      operationId: logoutUser
+      description: Expires token and clears the cache
+      operationId: logout
+      security:
+        - bearerAuth: []
       responses:
         "200":
           description: Logged out of the system
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
       x-swagger-router-controller: Admins
 
   /delete:

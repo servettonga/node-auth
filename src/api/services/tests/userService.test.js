@@ -31,9 +31,9 @@ const userIdReg = /^[a-f0-9]{24}$/;
 const tokenReg = /^([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-+\/=]*)/gm;
 
 describe('login', () => {
-    it('should return JWT token, userId, expireAt to validate login', async () => {
+    it('should return JWT token, userId, expireAt to validate loginUser', async () => {
         const dummy = await createDummy();
-        await expect(userService.login(dummy.username, dummy.password)).resolves.toEqual({
+        await expect(userService.loginUser(dummy.username, dummy.password)).resolves.toEqual({
             userId: dummy.userId,
             token: expect.stringMatching(/^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/),
             expireAt: expect.any(Date)
@@ -45,30 +45,30 @@ describe('login', () => {
             username: faker.internet.displayName(),
             password: faker.internet.password(10)
         };
-        await expect(userService.login(fake.username, fake.password)).resolves.toEqual({
+        await expect(userService.loginUser(fake.username, fake.password)).resolves.toEqual({
             error: { type: 'invalid_credentials', message: 'Invalid username or password' }
         });
     });
 
     it('should reject with error if password is wrong', async () => {
         const dummy = await createDummy();
-        await expect(userService.login(dummy.username, faker.internet.password(10))).resolves.toEqual({
+        await expect(userService.loginUser(dummy.username, faker.internet.password(10))).resolves.toEqual({
             error: { type: 'invalid_credentials', message: 'Invalid username or password' }
         });
     });
 
     it('should reject with error if no parameter were passed', async () => {
-        await expect(userService.login()).resolves.toEqual({
+        await expect(userService.loginUser()).resolves.toEqual({
             error: { type: 'invalid_request', message: expect.stringMatching(/username/i) }
         });
     });
 
-    it('login performance', async () => {
+    it('loginUser performance', async () => {
         const dummy = await createAuthorizedDummy();
         const now = new Date().getTime();
         let i;
         for (i = 0; new Date().getTime() - now < 1000; i++) {
-            await userService.login({
+            await userService.loginUser({
                 username: dummy.username,
                 password: dummy.password
             });
@@ -167,7 +167,7 @@ describe('createAuthToken', () => {
             callback({ error: 'Token couldn\'t be created' }, undefined);
         };
         const dummy = await createDummy();
-        await expect(userService.login(dummy.username, dummy.password)).resolves.toEqual({
+        await expect(userService.loginUser(dummy.username, dummy.password)).resolves.toEqual({
             error: {
                 type: 'internal_server_error',
                 message: 'Internal Server Error - Login Error ',

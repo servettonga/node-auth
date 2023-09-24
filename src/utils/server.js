@@ -52,9 +52,8 @@ export function createServer() {
   server.use((err, _req, res, _next) => {
     res.status(err.status).json({
       error: {
-        type: 'request_validation',
-        message: err.message,
-        errors: err.errors
+        type: 'request_validation_error',
+        message: err.message
       }
     })
   })

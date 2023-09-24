@@ -9,8 +9,7 @@ import logger from '#utils/logger.js';
  * @param {express.Request} req Request
  * @param {express.Response} res Response
  * @param {express.NextFunction} next NextFunction
- * @return {Promise<void>}
- * @throws {Error}
+ * @return {Promise<Object | {error: {type: string, message: string}}>}
  */
 export async function auth(req, res, next) {
     try {
@@ -19,21 +18,24 @@ export async function auth(req, res, next) {
         if (!response.error) {
             res.locals.auth = {
                 userId: response.userId
-            }
+            };
             next();
         } else {
-            writeJsonResponse(res, 401, response);
+            writeJsonResponse(res, 401, {
+                error: {
+                    type: "authentication_error",
+                    cause: response.error
+                }
+            });
         }
-
-    }
-    catch (error) {
+    } catch (error) {
         /* istanbul ignore next */
+        logger.warn(`Authentication error: ${error.message}`);
         writeJsonResponse(res, 500, {
             error: {
                 type: 'internal_server_error',
-                message: 'Internal Server Error'
+                message: 'Internal Server Error - Authentication failed'
             }
-        })
+        });
     }
-
 }

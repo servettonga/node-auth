@@ -2,12 +2,9 @@ import { authentication, updateUser } from '#services/userService.js';
 import { writeJsonResponse } from '#utils/express.js';
 import logger from '#utils/logger.js';
 
-export async function update(req, res, next) {
+export async function update(req, res) {
     try {
         const user = await authentication(req.header('Authorization'));
-        if (!user) {
-            writeJsonResponse(res, 401, { error: 'Unauthorized request' });
-        }
         const allowed = ['email', 'password'];
         const update = Object.keys(req.body)
             .filter(key => allowed.includes(key))
@@ -36,7 +33,7 @@ export async function update(req, res, next) {
         logger.warn('User update error');
         writeJsonResponse(res, 500, {
             error: 'Internal Server Error',
-            message: error
+            message: error.message
         });
     }
 }

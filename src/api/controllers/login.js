@@ -1,4 +1,4 @@
-import { login } from '#services/userService.js';
+import { loginUser } from '#services/userService.js';
 import { writeJsonResponse } from '#utils/express.js';
 
 /**
@@ -10,11 +10,10 @@ import { writeJsonResponse } from '#utils/express.js';
  * @param {express.NextFunction} next NextFunction
  * @return {Promise<{response: {message: string}}>}
  */
-export async function loginUser(req, res) {
-    const { username, password } = req.body;
-
+export async function login(req, res) {
     try {
-        const tokenRequest = await login(username, password);
+        const { username, password } = req.body;
+        const tokenRequest = await loginUser(username, password);
         if (!tokenRequest.error) {
             const { userId, token, expireAt } = tokenRequest;
             writeJsonResponse(
@@ -36,11 +35,11 @@ export async function loginUser(req, res) {
 
             }
         }
-    } catch (e) {
+    } catch (error) {
         writeJsonResponse(
             res,
             500,
-            { error: { type: 'internal_server_error', message: 'Login failed', e } }
+            { error: { type: 'internal_server_error', message: 'Login failed', error } }
         );
     }
 
