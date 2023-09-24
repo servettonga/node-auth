@@ -228,12 +228,44 @@ export async function deleteUser(userId) {
 }
 
 /**
+ * Get user information
+ * @memberof UserService
+ * @method
+ * @async
+ * @param {string} userId User ID to get information for
+ * @returns {Promise<{error: {type: string, message: string, error}}|Query<Object>}
+ */
+export async function getUser(userId) {
+    try {
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return {
+                error: {
+                    type: 'not_found_error',
+                    message: 'User not found'
+                }
+            };
+        }
+
+        return user;
+    } catch (error) {
+        return {
+            error: {
+                type: 'internal_server_error',
+                message: 'Internal Server Error - User could not be retrieved ', error
+            }
+        };
+    }
+}
+
+/**
  * Authenticate a token
  * @memberof UserService
  * @method
  * @async
  * @param {string} bearerToken Token to be verified
- * @return {Promise<{userId: Object} | {error: {type: string, message: string}}>}
+ * @return {Promise<{userId: string} | {error: {type: string, message: string}}>}
  */
 export async function authentication(bearerToken) {
     try {

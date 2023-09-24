@@ -40,7 +40,6 @@ describe('PATH /api/v1/update', () => {
     });
 
     it('should return 401 for an unauthorized update request', async () => {
-        const dummy = await createAuthorizedDummy();
         const updateData = { email: 'new_email@test.com' };
         const response = await request(server)
             .patch('/api/v1/update')

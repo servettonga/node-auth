@@ -238,13 +238,13 @@ paths:
           description: Internal Server Error
       x-swagger-router-controller: Admins
 
-  /user:
+  /me:
     get:
       tags:
         - users
-      summary: Returns logged in user
-      description: Get the details of the user
-      operationId: getUser
+      summary: Get user's profile
+      description: Get the details of the current user
+      operationId: whoAmI
       security:
         - bearerAuth: []
       responses:
@@ -253,9 +253,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/inline_response_200"
+                type: object
+                example:
+                  username: user,
+                  email: user@email.com,
+                  admin: false,
+                  active: true
+                  created: 1695494609813
         "401":
           description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
+        "404":
+          description: User's not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
         "500":
           description: Internal Server Error
       x-swagger-router-controller: Admins
@@ -381,5 +397,12 @@ components:
     FailResponse:
       type: object
       properties:
-        message:
+        error:
           type: object
+          properties:
+            type:
+              type: string
+            message:
+              type: string
+            errors:
+              type: object

@@ -38,15 +38,28 @@ describe('GET /api/v1/register', () => {
         });
     });
 
-    it('should return 409 & valid response for existing user', async () => {
+    it('should return 409 & valid response for existing email', async () => {
         const dummy = await createDummy();
-        const userIdReg = /^[a-f0-9]{24}$/;
-        const tokenReg = /^([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-+\/=]*)/gm;
+        const response = await request(server)
+            .post('/api/v1/register')
+            .send({
+                username: faker.internet.displayName(),
+                email: dummy.email,
+                password: dummy.password
+            })
+        expect(response.statusCode).toBe(409)
+        expect(response.body).toEqual({
+            error: expect.stringMatching(/email/i)
+        });
+    });
+
+    it('should return 409 & valid response for existing username', async () => {
+        const dummy = await createDummy();
         const response = await request(server)
             .post('/api/v1/register')
             .send({
                 username: dummy.username,
-                email: dummy.email,
+                email: faker.internet.email().toLowerCase(),
                 password: dummy.password
             })
         expect(response.statusCode).toBe(409)
@@ -57,8 +70,6 @@ describe('GET /api/v1/register', () => {
 
     it('should return 400 & valid response for invalid registry request', async () => {
         const dummy = await createDummy();
-        const userIdReg = /^[a-f0-9]{24}$/;
-        const tokenReg = /^([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-+\/=]*)/gm;
         const response = await request(server)
             .post('/api/v1/register')
             .send({
