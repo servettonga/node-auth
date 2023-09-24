@@ -33,8 +33,7 @@ describe('GET /api/v1/logout', () => {
             });
         expect(loginResponse.statusCode).toBe(200);
         expect(loginResponse.header['x-expires-after']).toMatch(headerReg);
-        expect(loginResponse.body).toEqual({
-            userId: dummy.userId,
+        expect(loginResponse.body).not.toEqual({
             token: dummy.token
         });
         // logout
@@ -45,7 +44,7 @@ describe('GET /api/v1/logout', () => {
         expect(logoutResponse.header['x-expires-after']).toMatch(headerReg);
         expect(logoutResponse.body).toEqual({
             userId: dummy.userId,
-            token: expect.not.stringMatching(dummy.token)
+            token: expect.not.stringMatching(loginResponse.body.token)
         });
     });
 

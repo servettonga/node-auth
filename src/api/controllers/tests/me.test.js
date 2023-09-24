@@ -23,9 +23,8 @@ describe('GET /api/v1/me', () => {
 		expect(response.statusCode).toBe(401);
         expect(response.body).toEqual({
             error: {
-                type: expect.stringMatching('request_validation'),
-                message: expect.stringMatching(/authorization/i),
-                errors: expect.anything()
+                type: expect.stringMatching('request_validation_error'),
+                message: expect.stringMatching(/header/i)
             }
         });
 	});
