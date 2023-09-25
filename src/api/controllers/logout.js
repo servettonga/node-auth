@@ -16,10 +16,11 @@ export async function logout(req, res) {
             { 'X-Expires-After': expire.toISOString() }
         );
     } catch (error) {
-        logger.warn(`User logout error: ${ error.message }`);
+        /* istanbul ignore next */
+        logger.warn(`Internal Server Error - /logout: ${ error.message }`);
         writeJsonResponse(res, 500, {
             type: 'internal_server_error',
-            message: 'Internal Server Error'
+            message: error.message
         });
     }
 }

@@ -95,7 +95,7 @@ describe('createUser', () => {
         const email = faker.internet.email().toLowerCase();
         await expect(userService.createUser(username, email)).resolves.toEqual({
             error: {
-                type: 'validation_error',
+                type: 'required_field_error',
                 message: expect.stringMatching(/required/i)
             }
         });
@@ -133,6 +133,27 @@ describe('updateUser', () => {
                 message: 'Invalid fields'
             }
         });
+    });
+});
+
+describe('deleteUser', () => {
+    it('should delete user', async () => {
+        const dummy = await createDummy();
+        const response = await userService.deleteUser(dummy.username);
+        expect(response).toContain({
+            username: dummy.username,
+            email: dummy.email,
+            admin: false,
+            active: true
+        });
+        const deletedUser = await User.findOne({username: dummy.username});
+        expect(deletedUser).toBeNull();
+    });
+
+    it('should return null if user not found', async () => {
+        const fakeUsername = faker.internet.displayName();
+        const response = await userService.deleteUser(fakeUsername);
+        expect(response).toBeNull();
     });
 });
 

@@ -1,5 +1,6 @@
 import { loginUser } from '#services/userService.js';
 import { writeJsonResponse } from '#utils/express.js';
+import logger from '#utils/logger.js';
 
 /**
  * Log in to the system
@@ -16,7 +17,7 @@ export async function login(req, res) {
         const tokenRequest = await loginUser(username, password);
         if (!tokenRequest.error) {
             const { userId, token, expireAt } = tokenRequest;
-            writeJsonResponse(
+            return writeJsonResponse(
                 res,
                 200,
                 { userId, token },
@@ -32,14 +33,18 @@ export async function login(req, res) {
                     break;
                 default:
                     writeJsonResponse(res, 500, tokenRequest);
-
             }
         }
     } catch (error) {
+        /* istanbul ignore next */
+        logger.warn('Internal Server Error - /login', error.message);
         writeJsonResponse(
             res,
             500,
-            { error: { type: 'internal_server_error', message: 'Login failed', error } }
+            {
+                type: 'internal_server_error',
+                message: error.message
+            }
         );
     }
 

@@ -49,7 +49,10 @@ describe('GET /api/v1/register', () => {
             })
         expect(response.statusCode).toBe(409)
         expect(response.body).toEqual({
-            error: expect.stringMatching(/email/i)
+            error: {
+                message: expect.stringMatching(/email/i),
+                type: 'validation_error'
+            }
         });
     });
 
@@ -64,7 +67,10 @@ describe('GET /api/v1/register', () => {
             })
         expect(response.statusCode).toBe(409)
         expect(response.body).toEqual({
-            error: expect.stringMatching(/username/i)
+            error: {
+                message: expect.stringMatching(/username/i),
+                type: 'validation_error'
+            }
         });
     });
 

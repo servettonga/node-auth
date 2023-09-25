@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 /**
  * Write formatted JSON response
  * @param {express.Response} res Response

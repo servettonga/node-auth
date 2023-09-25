@@ -30,11 +30,11 @@ export async function auth(req, res, next) {
         }
     } catch (error) {
         /* istanbul ignore next */
-        logger.warn(`Authentication error: ${error.message}`);
+        logger.warn(`Internal Server Error - Authentication error: ${error.message}`);
         writeJsonResponse(res, 500, {
             error: {
                 type: 'internal_server_error',
-                message: 'Internal Server Error - Authentication failed'
+                message: error.message
             }
         });
     }

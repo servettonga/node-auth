@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import config from '#config';
 import logger from '#utils/logger.js';
 import Redis from 'ioredis';

@@ -13,9 +13,10 @@ export function dummyUser() {
     }
 }
 
-export async function createDummy() {
+export async function createDummy(admin=false) {
     try {
         const user = dummyUser();
+        user.admin = admin;
         const dbUser = new User(user);
         await dbUser.save();
         return {...user, userId: dbUser._id.toString()}
@@ -25,9 +26,9 @@ export async function createDummy() {
     }
 }
 
-export async function createAuthorizedDummy() {
+export async function createAuthorizedDummy(admin=false) {
     try {
-        const user = await createDummy();
+        const user = await createDummy(admin);
         const authToken = await createAuthToken(user.userId, true);
         return {...user, token: authToken.token}
     } catch (e) {

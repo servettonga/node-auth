@@ -40,7 +40,7 @@ describe('GET /api/v1/me', () => {
             email: dummy.email,
             admin: false,
             active: true,
-            created: expect.any(Number)
+            created: expect.any(String)
         });
     });
 })

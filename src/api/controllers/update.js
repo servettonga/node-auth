@@ -13,7 +13,7 @@ export async function update(req, res) {
                 return obj;
             }, {});
         if (Object.keys(update).length === 0) {
-            writeJsonResponse(
+            return writeJsonResponse(
                 res,
                 404,
                 { message: 'Nothing found to update' }
@@ -22,7 +22,7 @@ export async function update(req, res) {
         const response = await updateUser(user, update);
         if (response && !response.error) {
             const { userId, token, expireAt } = response;
-            writeJsonResponse(
+            return writeJsonResponse(
                 res,
                 200,
                 { userId, token },
@@ -30,9 +30,9 @@ export async function update(req, res) {
             );
         }
     } catch (error) {
-        logger.warn('User update error');
+        logger.warn('Internal Server Error - /update', error.message);
         writeJsonResponse(res, 500, {
-            error: 'Internal Server Error',
+            type: 'internal_server_error',
             message: error.message
         });
     }

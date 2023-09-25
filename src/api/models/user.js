@@ -64,8 +64,8 @@ const userSchema = new Schema({
     })
 
     .set('toJSON', {
-        transform: (doc, ret, options) => {
-            ret.created = ret.created.getTime();
+        transform: (doc, ret, _options) => {
+            ret.created = ret.created.toISOString();
 
             delete ret.password;
             delete ret._id;
@@ -78,7 +78,7 @@ const userSchema = new Schema({
             if (password) {
                 return await argon2.verify(this.password, password);
             }
-        } catch (error) {
+        } catch {
             return false;
         }
     });

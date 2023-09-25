@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import config from '#config';
 import NodeCache from 'node-cache';
 

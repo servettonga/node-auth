@@ -21,7 +21,7 @@ export async function getJwtConfig() {
             verifyOptions: { algorithm: 'RS256' }
         };
     } catch (error) {
-        logger.warn(`JWT configuration error: ${ error.message }`);
+        logger.warn(`Internal Server Error - JWT configuration error: ${ error.message }`);
     }
 }
 
@@ -57,8 +57,8 @@ export async function createAuthToken(userId, renew) {
             return { token, expireAt };
         }
         return { error: 'Token couldn\'t be created' };
-    } catch (err) {
-        logger.warn(`Token couldn\'t be created: ${ err }`);
+    } catch (error) {
+        logger.warn(`Internal Server Error - createAuthToken: ${ error.message }`);
     }
 }
 
@@ -87,13 +87,14 @@ export async function loginUser(username, password) {
             cacheLoad.set(username, user);
             return { userId: user._id.toString(), token: authToken.token, expireAt: authToken.expireAt };
         }
-    } catch (err) {
-        logger.warn('Login Error ', err);
+    } catch (error) {
+        /* istanbul ignore next */
+        logger.warn('Internal Server Error - loginUser: ', error.message);
         return {
             error: {
                 type: 'internal_server_error',
                 message: 'Internal Server Error - Login Error ',
-                reason: err.message
+                reason: error.message
             }
         };
     }
@@ -118,7 +119,7 @@ export async function createUser(username, email, password) {
         } else {
             return {
                 error: {
-                    type: 'validation_error',
+                    type: 'required_field_error',
                     message: 'Required fields can not be blank'
                 }
             };
@@ -126,15 +127,17 @@ export async function createUser(username, email, password) {
         if (response) {
             return await loginUser(username, password);
         }
-    } catch (err) {
-        if (err.code === 11000 || err.errors) {
+    } catch (error) {
+        if (error.code === 11000 || error.errors) {
             return {
                 error: {
                     type: 'validation_error',
-                    message: err.message
+                    message: error.message
                 }
             };
         }
+        /* istanbul ignore next */
+        logger.warn('Internal Server Error - createUser: ', error.message);
         return {
             error: {
                 type: 'internal_server_error',
@@ -162,7 +165,7 @@ export async function updateUser(user, update) {
                 }
             };
         }
-        const validFields = Object.keys(User.schema.obj);
+        const validFields = Object.keys(User.schema.obj); // User schema fields
         if (!Object.keys(update).every(field => validFields.includes(field))) {
             return {
                 error: {
@@ -197,11 +200,12 @@ export async function updateUser(user, update) {
                 }
             };
         }
-        logger.warn('Internal Server Error - Update User', error);
+        /* istanbul ignore next */
+        logger.warn('Internal Server Error - Update User', error.message);
         return {
             error: {
                 type: 'internal_server_error',
-                message: 'Internal Server Error - User couldn\'t be updated\n', error
+                message: 'Internal Server Error - User couldn\'t be updated'
             }
         };
     }
@@ -212,16 +216,50 @@ export async function updateUser(user, update) {
  * @memberof UserService
  * @method
  * @async
- * @param userId
- * @return {Promise<{userId: Object} | {error: {type: string, message: string}}>}
+ * @param {string} username User to delete
+ * @return {Promise<{userId: Object} | {error: {type: string, message: string}}>} Deleted user
  */
-export async function deleteUser(userId) {
+export async function deleteUser(username) {
     try {
-        return await User.findByIdAndDelete(userId);
-    } catch (err) {
+        return await User.findOneAndDelete({ username });
+    } catch (error) {
+        /* istanbul ignore next */
+        logger.warn(`Internal Server Error - deleteUser: ${ error.message }`);
         return {
             error: {
-                message: err
+                message: error.message
+            }
+        };
+    }
+}
+
+/**
+ * Get current user
+ * @memberof UserService
+ * @method
+ * @async
+ * @param {string} userId User ID to get information for
+ * @returns {Promise<{error: {type: string, message: string, error}}|Query<Object>}
+ */
+export async function getUserById(userId) {
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return {
+                error: {
+                    type: 'not_found_error',
+                    message: 'User not found'
+                }
+            };
+        }
+        return user;
+    } catch (error) {
+        /* istanbul ignore next */
+        logger.warn('Internal Server Error - getUserById: ', error.message);
+        return {
+            error: {
+                type: 'internal_server_error',
+                message: 'Internal Server Error - User could not be retrieved'
             }
         };
     }
@@ -232,13 +270,12 @@ export async function deleteUser(userId) {
  * @memberof UserService
  * @method
  * @async
- * @param {string} userId User ID to get information for
+ * @param {string} username Username to get information for
  * @returns {Promise<{error: {type: string, message: string, error}}|Query<Object>}
  */
-export async function getUser(userId) {
+export async function getUser(username) {
     try {
-        const user = await User.findById(userId);
-
+        const user = await User.findOne({ username });
         if (!user) {
             return {
                 error: {
@@ -247,13 +284,14 @@ export async function getUser(userId) {
                 }
             };
         }
-
         return user;
     } catch (error) {
+        /* istanbul ignore next */
+        logger.warn('Internal Server Error - getUser: ', error.message);
         return {
             error: {
                 type: 'internal_server_error',
-                message: 'Internal Server Error - User could not be retrieved ', error
+                message: 'Internal Server Error - User could not be retrieved'
             }
         };
     }
@@ -290,7 +328,8 @@ export async function authentication(bearerToken) {
             }
         });
     } catch (error) {
-        logger.warn(`authentication failed: ${ error }`);
+        /* istanbul ignore next */
+        logger.warn(`Authentication failed: ${ error.message }`);
         throw error;
     }
 }
@@ -309,9 +348,34 @@ export async function logoutUser(userId) {
         const token = await cacheExternal.getProp(userId);
         await cacheExternal.delProp(token);
         await cacheExternal.delProp(userId);
-        return await jwt.sign({ userId }, jwtCfg.privateSecret, { algorithm: 'RS256', expiresIn: 0});
+        return await jwt.sign({ userId }, jwtCfg.privateSecret, { algorithm: 'RS256', expiresIn: 0 });
     } catch (error) {
-        logger.warn(`Logout failure ${error.message}`)
-        throw error
+        /* istanbul ignore next */
+        logger.warn(`Internal Server Error - Logout failure ${ error.message }`);
+        throw error;
+    }
+}
+
+/**
+ * Checks if the user is authorized
+ * @param {String} userId User ID to check authorization for
+ * @return {Promise<Object | {error: {type: string, message: string}}>}
+ */
+export async function isAdmin(userId) {
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return {
+                error: {
+                    type: 'not_found_error',
+                    message: 'User not found'
+                }
+            };
+        }
+        return user.admin;
+    } catch (error) {
+        /* istanbul ignore next */
+        logger.warn(`Internal Server Error - isAdmin: ${ error.message }`);
+        throw error;
     }
 }
