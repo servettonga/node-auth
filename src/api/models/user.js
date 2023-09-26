@@ -41,6 +41,13 @@ const userSchema = new Schema({
 
     .pre('save', async function (next) {
         try {
+            if (!validator.matches(this.username, /^[a-zA-Z0-9_.-]*$/)) {
+                return next({
+                    code: 11000,
+                    type: 'validation_error',
+                    message: 'Invalid username format'
+                });
+            }
             if (this.isModified('password') || this.isNew) {
                 const hashed = await argon2.hash(this.get('password'));
                 this.set('password', hashed);

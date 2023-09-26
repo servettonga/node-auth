@@ -1,5 +1,6 @@
 import dotenvExtended from 'dotenv-extended';
 import dotenvParseVariables from 'dotenv-parse-variables';
+import fs from 'fs';
 
 /** @namespace Config */
 
@@ -46,11 +47,11 @@ const config = {
         autoIndex: Boolean(parseEnv.MONGO_AUTO_INDEX)
     },
     /** @type string */
-    privateKeyFile: parseEnv.PRIVATE_KEY_FILE,
+    privateKey: fs.readFileSync(parseEnv.PRIVATE_KEY_FILE),
     /** @type string */
     privateKeyPassphrase: parseEnv.PRIVATE_KEY_PASSPHRASE,
     /** @type string */
-    publicKeyFile: parseEnv.PUBLIC_KEY_FILE,
+    publicKey: fs.readFileSync(parseEnv.PUBLIC_KEY_FILE),
     /** @type number */
     localCacheTtl: Number(parseEnv.LOCAL_CACHE_TTL),
     /** @type string */

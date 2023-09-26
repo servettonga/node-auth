@@ -3,7 +3,6 @@ import User from '#models/user.js';
 import cacheExternal from '#utils/cacheExternal.js';
 import cacheLoad from '#utils/cacheLoad.js';
 import logger from '#utils/logger.js';
-import fs from 'fs';
 import jwt from 'jsonwebtoken';
 
 /** @namespace UserService */
@@ -12,12 +11,12 @@ import jwt from 'jsonwebtoken';
 export async function getJwtConfig() {
     try {
         return {
-            privateSecret: { key: fs.readFileSync(config.privateKeyFile), passphrase: config.privateKeyPassphrase },
+            privateSecret: { key: config.privateKey, passphrase: config.privateKeyPassphrase },
             signOptions: {
                 algorithm: 'RS256',
                 expiresIn: '14d'
             },
-            publicKey: fs.readFileSync(config.publicKeyFile),
+            publicKey: config.publicKey,
             verifyOptions: { algorithm: 'RS256' }
         };
     } catch (error) {
@@ -40,6 +39,9 @@ const jwtCfg = await getJwtConfig();
 /* istanbul ignore next */
 export async function createAuthToken(userId, renew) {
     try {
+        if(!userId) {
+            return { error: 'User ID is required'};
+        }
         let cachedToken;
         let token;
         if (!renew) {
