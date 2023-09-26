@@ -179,9 +179,9 @@ paths:
         - admins
       summary: Returns users
       description: Get the details of a user or users
-      operationId: getUsers
+      operationId: users
       security:
-        - bearerAuth: []
+        - bearerAuthAdmin: []
       parameters:
         - name: username
           in: query
@@ -197,6 +197,7 @@ paths:
           required: false
           style: form
           explode: true
+          allowReserved: true
           schema:
             type: string
         - name: admin
@@ -206,7 +207,7 @@ paths:
           style: form
           explode: true
           schema:
-            type: boolean
+            type: string
         - name: active
           in: query
           description: Active
@@ -214,7 +215,7 @@ paths:
           style: form
           explode: true
           schema:
-            type: boolean
+            type: string
       responses:
         "200":
           description: Search result
@@ -234,8 +235,22 @@ paths:
                 ]
         "401":
           description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
+        "404":
+          description: No match
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
         "500":
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
       x-swagger-router-controller: Admins
 
   /me:
@@ -314,7 +329,7 @@ paths:
       description: Deletes a user from the database
       operationId: delUser
       security:
-        - bearerAuth: []
+        - bearerAuthAdmin: []
       parameters:
         - name: username
           in: query
@@ -363,6 +378,10 @@ paths:
 components:
   securitySchemes:
     bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    bearerAuthAdmin:
       type: http
       scheme: bearer
       bearerFormat: JWT

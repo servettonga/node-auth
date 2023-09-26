@@ -88,3 +88,23 @@ export async function teardown() {
         throw err;
     }
 }
+
+/**
+ * Clear all collections
+ * @memberof Database
+ * @async
+ * @method
+ * @return {Promise<void>}
+ * @throws {Error}
+ */
+export async function clearDatabase() {
+    try {
+        const collections = mongoose.connection.collections;
+        for (let collectionName in collections) {
+            await collections[collectionName].deleteMany({});
+        }
+    } catch (error) {
+        logger.error(`Error clearing database: ${error.message}`);
+        throw error;
+    }
+}

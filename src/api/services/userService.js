@@ -174,7 +174,7 @@ export async function updateUser(user, update) {
                 }
             };
         }
-        const query = await User.findByIdAndUpdate(user.userId, update, { new: true });
+        const query = await User.findByIdAndUpdate(user.userId, update, { new: true }).lean();
         if (!query) {
             return {
                 error: {
@@ -243,7 +243,9 @@ export async function deleteUser(username) {
  */
 export async function getUserById(userId) {
     try {
-        const user = await User.findById(userId);
+        const user = await User.findById(userId)
+            .lean()
+            .select('-password -__v');
         if (!user) {
             return {
                 error: {
@@ -275,7 +277,9 @@ export async function getUserById(userId) {
  */
 export async function getUser(username) {
     try {
-        const user = await User.findOne({ username });
+        const user = await User.findOne({ username })
+            .lean()
+            .select('-password -__v');
         if (!user) {
             return {
                 error: {
@@ -288,6 +292,44 @@ export async function getUser(username) {
     } catch (error) {
         /* istanbul ignore next */
         logger.warn('Internal Server Error - getUser: ', error.message);
+        return {
+            error: {
+                type: 'internal_server_error',
+                message: 'Internal Server Error - User could not be retrieved'
+            }
+        };
+    }
+}
+
+/**
+ * Get users information
+ * @memberof UserService
+ * @method
+ * @async
+ * @param {Object} query User information to for
+ * @returns {Promise<{error: {type: string, message: string, error}}|Query<Object>}
+ */
+export async function getUsers(query) {
+    try {
+        query.username = new RegExp(query.username, 'i');
+        query.email = new RegExp(query.email, 'i');
+        const result = await User.find({...query})
+            .lean()
+            .select('-password -__v')
+            .limit(query.limit | 20)
+            .sort({'_id': 1});
+        if (result && result.length === 0) {
+            return {
+                error: {
+                    type: 'not_found_error',
+                    message: 'No users found'
+                }
+            };
+        }
+        return result;
+    } catch (error) {
+        /* istanbul ignore next */
+        logger.warn('Internal Server Error - getUsers: ', error.message);
         return {
             error: {
                 type: 'internal_server_error',

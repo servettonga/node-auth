@@ -8,7 +8,7 @@ import * as db from '#utils/db.js';
 import { faker } from '@faker-js/faker';
 import jwt from 'jsonwebtoken';
 import { performance, PerformanceObserver } from 'perf_hooks';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 beforeAll(async () => {
     await db.setup();
@@ -25,6 +25,10 @@ beforeAll(async () => {
 afterAll(async () => {
     await db.teardown();
     await cacheExternal.close();
+});
+
+beforeEach(async () => {
+    await db.clearDatabase();
 });
 
 const userIdReg = /^[a-f0-9]{24}$/;
@@ -146,7 +150,7 @@ describe('deleteUser', () => {
             admin: false,
             active: true
         });
-        const deletedUser = await User.findOne({username: dummy.username});
+        const deletedUser = await User.findOne({ username: dummy.username });
         expect(deletedUser).toBeNull();
     });
 
@@ -154,6 +158,36 @@ describe('deleteUser', () => {
         const fakeUsername = faker.internet.displayName();
         const response = await userService.deleteUser(fakeUsername);
         expect(response).toBeNull();
+    });
+});
+
+describe('getUsers', () => {
+    it('should return a valid array of users', async () => {
+        const dummy1 = await createDummy();
+        const dummy2 = await createDummy();
+        const response = await userService.getUsers({ active: true });
+        expect(response[0]._id.toString()).toEqual(dummy1.userId);
+        expect(response[0].username).toEqual(dummy1.username);
+        expect(response[0].email).toEqual(dummy1.email);
+        expect(response[0].admin).toEqual(false);
+        expect(response[0].active).toEqual(true);
+        expect(response[0].created).toBeDefined();
+        expect(response[1]._id.toString()).toEqual(dummy2.userId);
+        expect(response[1].username).toEqual(dummy2.username);
+        expect(response[1].email).toEqual(dummy2.email);
+        expect(response[1].admin).toEqual(false);
+        expect(response[1].active).toEqual(true);
+        expect(response[1].created).toBeDefined();
+    });
+
+    it('should return a valid response if no users found', async () => {
+        const response = await userService.getUsers({});
+        expect(response).toEqual({
+            error: {
+                type: 'not_found_error',
+                message: 'No users found'
+            }
+        });
     });
 });
 

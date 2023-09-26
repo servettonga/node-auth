@@ -36,6 +36,7 @@ describe('GET /api/v1/me', () => {
             .set('Authorization', `Bearer ${dummy.token}`)
         expect(response.statusCode).toBe(200);
         expect(response.body).toEqual({
+            _id: expect.stringMatching('^[0-9a-f]{24}$'),
             username: dummy.username,
             email: dummy.email,
             admin: false,

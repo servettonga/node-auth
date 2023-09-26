@@ -28,7 +28,6 @@
         "morgan-body": "^2.6.9",
         "node-cache": "^5.1.2",
         "openapi-backend": "^5.9.2",
-        "qs": "^6.11.2",
         "swagger-routes-express": "^3.3.2",
         "swagger-ui-express": "^5.0.0",
         "validator": "^13.11.0",

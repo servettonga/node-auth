@@ -29,6 +29,7 @@ export function createServer() {
   // Server settings
   const server = express();
   server.use(bodyParser.json());
+  server.use(express.urlencoded({extended: true}));
 
   // Logging
   if (config.morganLogger) {
@@ -65,7 +66,8 @@ export function createServer() {
       logger.info(`${method}: ${descriptor.map(d => d.name).join(', ')}`)
     },
     security: {
-      bearerAuth: api.auth
+      bearerAuth: api.auth,
+      bearerAuthAdmin: api.authAdmin
     }
   })
 
